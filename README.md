@@ -157,4 +157,4 @@ This skill is for educational purposes only. It is not financial advice, investm
 
 ## License
 
-MIT © [Federico Venturino]
+MIT
