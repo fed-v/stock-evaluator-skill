@@ -60,40 +60,75 @@ Every evaluation follows this fixed structure, always in this order:
 
 ---
 
-## Key Design Decisions
+## Design Decisions
 
-### Non-Negotiable Quality Controls
+This skill was built by working backward from failure modes — specific ways AI financial analysis produces confident-sounding but unreliable output. Each design decision below addresses a problem that was discovered and verified during development.
 
-The skill ships with a strict QC ruleset that Claude cannot bypass:
+### Rules over judgment for quality control
 
-- **Source consistency** — Data labeled *Verified* only when the exact filing and period are both explicit. No stale financials when a newer 10-Q or 10-K exists.
-- **Period discipline** — Fiscal-year, quarterly, and TTM figures must always be labeled. TTM is calculated correctly (latest FY + current interim − prior-year comparable), never estimated.
-- **SBC treatment** — Stock-based compensation is always shown three ways: absolute $, % of revenue, % of FCF. SBC > 10% of revenue is a red flag; > 25% of FCF flags owner-earnings impact explicitly.
-- **Buyback rigor** — Authorization ≠ execution. If repurchases occurred, the skill shows shares repurchased, dollars spent, average price, and accretion/dilution analysis.
-- **Debt separation** — Total liabilities are never confused with financial debt. Every balance-sheet section separates cash / short-term debt / long-term debt / operating leases / finance leases.
-- **Valuation weighting** — For high-multiple or high-growth names, valuation/expected return carries 30–40% of the scorecard. A cluster of green qualitative checks cannot override a major valuation red flag.
+The most important decision was replacing soft guidance ("be accurate", "use reliable sources") with explicit, non-negotiable rules. LLM behavior drifts across long outputs — a model that starts disciplined can quietly lapse by section 14. Rules lock in behavior regardless of output length.
 
-### Business-Model-Aware KPIs
+Each rule targets a specific observed failure:
 
-The skill loads a reference document (`references/business-model-kpis.md`) that maps each company archetype to its relevant performance metrics:
+- **TTM confusion** — AI routinely labels full-year revenue as "TTM." The correct calculation is hard-wired: latest FY + current-year interim − prior-year comparable interim. No estimation, no shortcuts.
+- **Debt vs. liabilities conflation** — Treating total liabilities as financial debt makes companies look far more leveraged than they are. The skill requires explicit separation across six line items: cash / short-term debt / long-term debt / finance leases / operating leases / operating liabilities.
+- **SBC misdirection** — AI tends to describe SBC as "declining" when only the percentage fell while the absolute dollar amount grew. The skill requires three simultaneous views (absolute $, % of revenue, % of FCF) before any directional statement is permitted.
+- **Buyback theater** — Board authorizations make headlines; actual repurchases are what move the share count. The skill requires five specific data points: shares repurchased, dollars spent, average price, remaining authorization, and whether the buyback was value-accretive at that price.
+- **Take rate assertion** — Marketplace analysis often states that take rate is "rising" or "stable" without showing the math. The skill requires an explicit calculation (revenue ÷ GMV/TPV/GTV) for the current and prior periods before any directional claim is made.
 
-- **SaaS / Software** → ARR growth, NRR, Rule of 40, magic number
-- **Marketplace / Platform** → GMV, take rate, liquidity metrics
-- **Payments / Fintech / BNPL** → TPV, credit losses as % of revenue, charge-off trends
-- **Bank / Insurance** → NIM, efficiency ratio, Tier 1 capital, combined ratio
-- **Retail** → Comp-store sales, inventory turns, gross margin by channel
-- *...and more*
+### Analysis gate before narrative
 
-### Source Hierarchy
+The Hard Stop Scan (Section 3) runs before any other analysis. If it surfaces a qualified auditor opinion, SEC investigation, material weakness in internal controls, or credible fraud allegation, the default verdict is AVOID — and no downstream financial strength can override it. This prevents the model from building a compelling analysis on top of a disqualified company.
 
-Claude is instructed to use the highest available evidence tier and label everything:
+### Valuation as a structural override
 
-1. SEC filings (10-K, 10-Q, 20-F) — *Primary*
-2. Earnings releases, investor presentations — *Company releases*
-3. Proxy statements (DEF 14A), Form 4 insider activity — *Regulatory filings*
-4. Reputable financial data providers — labeled with provider name and date
-5. News — context only, never a scorecard basis
-6. Blogs / SEO content — explicitly prohibited for any material claim
+In a naive scoring system, a cluster of green qualitative checks can outvote a red valuation flag. This skill explicitly disables that behavior: for high-growth or high-multiple names, valuation and expected return is locked at 30–40% of the weighted scorecard, and the framework prohibits qualitative business-quality scores from masking a pricing problem. The most common failure mode in AI bull-market analysis is rationalizing expensive valuations through operational flattery. This rule prevents it structurally.
+
+### Expected-return math, not just multiples
+
+Valuation analysis stops too early when it only reports P/E and EV/EBITDA. Section 16 adds a reverse-DCF table with bear, base, and bull scenarios answering one question: *what has to be true about this business for the stock to beat the market from current prices?* This forces the analysis to take a position rather than describe a range.
+
+### Kill criteria tied to the entry thesis
+
+Generic exit signals ("if growth slows, reconsider") are not actionable. The kill criteria in Section 20 are derived directly from the reverse-DCF assumptions in Section 16. If the thesis requires 25% revenue growth to justify the current multiple, the kill criterion is calibrated to that number — and it is designed to trigger before the business visibly collapses, not after. For expensive growth stocks, a visible collapse means the multiple has already re-rated violently downward.
+
+### Per-share economics alongside totals
+
+Total FCF can grow while per-share FCF quietly falls through dilution. Many investors track the wrong number. The skill requires showing diluted share count trends, SBC-driven dilution rate, and FCF per share alongside absolute FCF — so the picture is complete even for companies running aggressive equity compensation programs.
+
+### Confidence tagging on every claim
+
+Every material data point carries a tag: `[Verified]`, `[Market Data]`, `[Estimate]`, `[Qualitative judgment]`, or `[Unverified]`. A hard rule prohibits any `[Unverified]` claim from driving the scorecard verdict. This makes the epistemic status of the analysis visible rather than buried in prose confidence.
+
+### Memo format over checklist format
+
+Early versions produced a checklist — fine for coverage but easy to skim past. The final structure produces a 22-section investor memo with a fixed output order, a structured Final Verdict field, and prose reasoning rather than bullet ratings. The format change mattered: a memo forces synthesis; a checklist permits avoidance.
+
+### Business-model-aware KPI layer
+
+A single universal metric set produces shallow analysis across sectors. NRR is meaningless for a bank; combined ratio is irrelevant for a SaaS company; credit losses as a percentage of revenue matter for a BNPL lender but not for an industrial. The skill classifies each company into one of 15 archetypes and loads the appropriate KPI library from `references/business-model-kpis.md`. One framework, calibrated per sector.
+
+### Source hierarchy with explicit tier labels
+
+Every data point must be labeled with its source and tier. The hierarchy is enforced top-down: SEC filings first, then company releases and regulatory filings, then reputable financial data providers. News is acceptable for context only. Blogs and SEO content are explicitly prohibited for market-share claims, moat assessments, or any figure that feeds the scorecard. If two sources conflict on the same data point, the conflict must be flagged openly — never silently resolved. A standing rule makes it explicit: if a filing is cited anywhere in the analysis, it cannot later be declared unavailable.
+
+---
+
+## Evolution
+
+This skill started as a 9-item checklist adapted from a YouTube video and was rebuilt through five distinct rounds of iteration. The driving question at each round was the same: *what can still produce a falsely confident output, and how do we close that gap?*
+
+**Round 1 — From checklist to framework.** Added forensic accounting as a standalone check, ROIC analysis to separate valuable growth from value-destroying growth, per-share economics to catch dilution, and three quantitative overlays (Piotroski, Beneish, Altman). Added Hard Stop conditions that bypass the scorecard entirely.
+
+**Round 2 — Source discipline and weighted scoring.** All checks had been treated as equally important. Added dominant-risk weighting by company archetype, kill criteria tied to the thesis, reverse-DCF expected-return math, and confidence tags on every claim. Added a Data Integrity Check that runs before scoring begins.
+
+**Round 3 — Professional-grade rebuild.** Output still read like a checklist, not an investor memo. Rebuilt as a 22-section structured memo. Added business-model-specific risk checks backed by a 300-line sector KPI reference file. Added mandatory SBC-adjusted owner earnings, full balance sheet debt separation, and a structured Final Verdict format.
+
+**Round 4 — Closing specific accuracy gaps.** Eleven targeted fixes: buyback analysis required five specific data points; SBC required both absolute and percentage trends; take rates required explicit calculation rather than assertion; credit losses gained hard-red thresholds; kill criteria for expensive growth stocks were calibrated to fire before visible distress.
+
+**Round 5 — Filing-data extraction discipline.** EV calculation was corrected to deduct marketable securities and short-term investments, not just cash. Data Integrity Check expanded from 26 to 49 rows. "Needs Review" was restricted to data genuinely absent from all reviewed filings — it can no longer be applied to items present in a 10-Q or 10-K that was cited. Entry-price table now shows the formula for each column.
+
+The skill grew from 9 checks to a 931-line framework with a 312-line sector KPI library. Each round made it harder for bad inputs to produce confident outputs, and harder for a strong operational story to paper over a broken valuation.
 
 ---
 
