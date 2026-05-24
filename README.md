@@ -8,6 +8,10 @@
 
 ---
 
+**→ [See a live example: Shopify (SHOP) full analysis](demo/SHOP-analysis.md)**
+
+---
+
 ## What It Does
 
 Ask Claude to evaluate a stock, and this skill activates a 22-section investor memo covering everything from forensic accounting red flags to entry-price margin-of-safety math. It doesn't give you a stock tip — it gives you the structured thinking you'd want before making any investment decision.
