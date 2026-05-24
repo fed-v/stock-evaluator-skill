@@ -643,22 +643,40 @@ Holding period:                 5 years and 10 years
 Exit multiples tested:          Conservative (Nx), Base (Nx), Aggressive (Nx)
 ```
 
+**Required calculation sequence (always follow this order):**
+
+1. **Compound today's market cap forward** to find the required exit market cap:
+   Required exit market cap = Current market cap × (1 + target return)^holding period
+   Example: $100B × (1.10)^10 = $259B required exit market cap
+
+2. **Derive required exit FCF** from the required exit market cap and the assumed exit multiple:
+   Required exit FCF = Required exit market cap ÷ exit P/FCF multiple
+   (Or use EV/FCF if working from EV rather than market cap — be consistent.)
+
+3. **Derive the required FCF CAGR** from current FCF to required exit FCF:
+   Required FCF CAGR = (Required exit FCF ÷ Current FCF)^(1/years) − 1
+
+4. **Assess realism**: compare the required FCF CAGR to the company's historical growth, analyst consensus, and the thesis-case growth from Section 10.
+
+Show these four steps explicitly whenever the report states "to earn X% annually over Y years." Never derive a required growth rate without first compounding the market cap forward. Do not work backwards from an assumed FCF growth rate to imply a return without showing the exit market cap check.
+
 **Scenario table:**
 
-| Scenario | Revenue CAGR | FCF Margin Yr 5 | Exit EV/FCF | Implied Annual Return | Verdict     |
-|----------|-------------|-----------------|-------------|----------------------|-------------|
-| Bear     | X%          | X%              | Xx          | X%                   |             |
-| Base     | X%          | X%              | Xx          | X%                   |             |
-| Bull     | X%          | X%              | Xx          | X%                   |             |
+| Scenario | Revenue CAGR | FCF Margin Yr N | Exit P/FCF | Req. Exit Mkt Cap | Req. Exit FCF | Req. FCF CAGR | Implied Annual Return | Verdict |
+|----------|-------------|-----------------|------------|-------------------|---------------|---------------|-----------------------|---------|
+| Bear     | X%          | X%              | Xx         | $X bn             | $X bn         | X%            | X%                    |         |
+| Base     | X%          | X%              | Xx         | $X bn             | $X bn         | X%            | X%                    |         |
+| Bull     | X%          | X%              | Xx         | $X bn             | $X bn         | X%            | X%                    |         |
 
 State all assumptions. Tag as `[Estimate]`. Explain whether base-case assumptions are realistic given history and sector.
 
 **Rules:**
 - Never use a single-point estimate. Always show a range.
+- Always compound today's market cap forward first — then calculate required exit FCF. Do not reverse the order.
 - A great business can still be a bad stock if valuation already prices in perfection.
 - **Valuation has override power.** If valuation is extreme, the verdict should not be BUY unless expected-return math supports it.
 - If the base case requires top-decile execution for a decade, say so plainly.
-- Link required growth rate back to Section 10 (Growth Durability) for consistency.
+- Link required FCF CAGR back to Section 10 (Growth Durability) for consistency.
 
 **Rating:** 🔴 Expensive / 🟡 Fair / 🟢 Attractive
 
@@ -804,7 +822,7 @@ If the stock is high quality but expensive, show what different price levels imp
 - Implied EV = implied market cap + total financial debt + preferred + minority interest − total liquid assets (same deductions as Section 9).
 - FCF yield = FCF ÷ implied market cap.
 - EV/FCF = implied EV ÷ FCF.
-- Required FCF CAGR = the growth rate needed for the stock to achieve the base-case target return at the given price, holding exit multiple constant.
+- Required FCF CAGR = derived by first compounding the implied market cap at that price forward by the holding period at the target return to get the required exit market cap, then dividing by the exit multiple to get required exit FCF, then solving for the CAGR from current FCF to that exit FCF. Never derive this rate without the compounding step.
 - Show enough arithmetic that the user can sanity-check each cell. Do not state an implied multiple or yield unless the formula supports it.
 - Do not claim an entry zone implies a low FCF multiple unless the EV/FCF calculation at that price actually confirms it.
 
