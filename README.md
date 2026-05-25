@@ -17,11 +17,11 @@
 Ask Claude to evaluate a stock, and this skill activates a 25-section investor memo covering everything from forensic accounting red flags to entry-price margin-of-safety math. It doesn't give you a stock tip — it gives you the structured thinking you'd want before making any investment decision.
 
 **Example triggers:**
-- *"Should I buy NVDA?"*
-- *"Evaluate AAPL for me"*
-- *"Is PayPal a good investment right now?"*
-- *"Run your checklist on Tesla"*
-- *"Analyze this stock: $MSFT"*
+- *"Run your evaluator on NVDA before I add to my position"*
+- *"What are the red flags on AAPL right now?"*
+- *"What does PayPal's current price assume about growth?"*
+- *"Build me a thesis on Tesla — what needs to stay true?"*
+- *"What should I be monitoring on $MSFT after earnings?"*
 
 ---
 
