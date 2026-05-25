@@ -33,6 +33,25 @@ The goal is to make Claude a more disciplined analyst, not a faster one.
 
 ---
 
+## How to Use It
+
+This skill is not a stock picker. It is a thesis builder.
+
+The question to bring is not *"Tell me whether to buy"* — it is *"Show me what can go wrong, what needs to stay true, what the current price assumes, and what I should monitor."* That shift in framing is where it becomes genuinely useful.
+
+A productive workflow:
+
+1. **Run the evaluator before buying or adding to a position.** Get the full memo before any capital is committed.
+2. **Read the red flags first, not the verdict.** The Final Verdict is a synthesis — the red flags are the raw material. Start there.
+3. **Ask follow-up questions about the red flags.** The memo surfaces concerns; you decide whether they are priced in, manageable, or disqualifying.
+4. **Decide whether the risks are acceptable given the entry price.** A business can have real problems and still be a good investment at the right price. The reverse is also true.
+5. **Copy the kill criteria and watch items into an earnings-review checklist.** The thesis breakers in Section 23 are designed to be tracked across quarters, not read once.
+6. **Re-run after earnings to see whether the thesis improved, weakened, or broke.** The memo gives you a baseline. Subsequent runs show you drift.
+
+The goal is not a recommendation — it is a structured basis for your own judgment.
+
+---
+
 ## Output: 25-Section Investor Memo
 
 Every evaluation follows this fixed structure, always in this order:
