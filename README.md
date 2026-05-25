@@ -14,7 +14,7 @@
 
 ## What It Does
 
-Ask Claude to evaluate a stock, and this skill activates a 22-section investor memo covering everything from forensic accounting red flags to entry-price margin-of-safety math. It doesn't give you a stock tip — it gives you the structured thinking you'd want before making any investment decision.
+Ask Claude to evaluate a stock, and this skill activates a 25-section investor memo covering everything from forensic accounting red flags to entry-price margin-of-safety math. It doesn't give you a stock tip — it gives you the structured thinking you'd want before making any investment decision.
 
 **Example triggers:**
 - *"Should I buy NVDA?"*
@@ -33,7 +33,7 @@ The goal is to make Claude a more disciplined analyst, not a faster one.
 
 ---
 
-## Output: 22-Section Investor Memo
+## Output: 25-Section Investor Memo
 
 Every evaluation follows this fixed structure, always in this order:
 
@@ -41,26 +41,32 @@ Every evaluation follows this fixed structure, always in this order:
 |---|---------|---------------|
 | 1 | **Disclaimer** | Educational-use notice |
 | 2 | **Company Snapshot** | Ticker, price, market cap, EV, TTM revenue, business model, archetype |
+| 2A | **Company Archetype Classification** | Business model classification that determines which KPI library applies — prerequisite for all downstream analysis |
 | 3 | **Hard Stop Scan** | Auditor resignations, fraud allegations, SEC investigations, material weaknesses — defaults to AVOID if triggered |
-| 4 | **Data Integrity Check** | Source validation before analysis begins |
-| 5 | **Dominant-Risk Weighting** | Identifies the single biggest risk to thesis |
-| 6 | **Business-Model-Specific Risk** | KPIs and risks calibrated to archetype (SaaS, marketplace, bank, etc.) |
-| 7 | **P&L Health** | Revenue trends, margin trajectory, operating leverage |
-| 8 | **Cash-Flow Quality & Owner Earnings** | FCF, SBC adjustment, owner earnings calculation |
-| 9 | **Balance Sheet & Liquidity** | Debt structure, coverage ratios, liquidity |
-| 10 | **Growth Durability** | Revenue growth quality, cohort signals, TAM ceiling |
-| 11 | **Competitive Position / Moat** | Pricing power, switching costs, market share trends |
-| 12 | **Management, Governance & Capital Allocation** | Insider activity, buyback quality, compensation structure |
-| 13 | **Earnings Quality & Forensic Accounting** | Accrual ratios, Beneish M-Score, CAMs, auditor opinion |
-| 14 | **Macro, Sector & External Risks** | Rate sensitivity, regulatory exposure, cyclicality |
+| 4 | **Data Integrity Check** | Source validation and confidence tagging before analysis begins |
+| 5 | **Dominant-Risk Weighting** | Identifies the single biggest risk to the thesis; sets the floor for its scorecard weight |
+| 6 | **Business-Model-Specific Risk Check** | KPIs and risks calibrated to the classified archetype (SaaS, marketplace, bank, REIT, etc.) |
+| 7 | **P&L Health** | Revenue trends, margin trajectory, operating leverage, period-labeled comparisons |
+| 8 | **Cash-Flow Quality & Owner Earnings** | FCF generation, SBC adjustment from primary filings, owner earnings calculation |
+| 9 | **Balance Sheet & Liquidity** | Debt structure separated across six line items, coverage ratios, liquidity runway |
+| 10 | **Growth Durability** | Revenue growth quality, cohort signals, retention trends, TAM ceiling |
+| 11 | **Competitive Position / Moat** | Pricing power, switching costs, network effects, market share trends |
+| 12 | **Management, Governance & Capital Allocation** | Insider activity, buyback quality (five required data points), compensation structure |
+| 13 | **Earnings Quality & Forensic Accounting** | Accrual ratios, Beneish M-Score, critical audit matters, auditor opinion |
+| 14 | **Macro, Sector & External Risks** | Rate sensitivity, regulatory exposure, cyclicality, geopolitical exposure |
 | 15 | **Historical Price & Volatility** | Beta, drawdown history, 52-week context |
-| 16 | **Valuation vs. Expected Return** | P/E, EV/EBITDA, DCF check, implied IRR |
-| 17 | **Quantitative Overlays** | Piotroski F-Score, Altman Z-Score (when inputs available) |
-| 18 | **Summary Weighted Scorecard** | Aggregated rating across all dimensions |
-| 19 | **Entry Price / Margin of Safety** | Fair value range, downside protection math |
-| 20 | **Thesis Breakers / Kill Criteria** | Pre-defined conditions that would invalidate the investment case |
-| 21 | **Final Verdict** | Buy / Hold / Avoid with explicit reasoning |
-| 22 | **Sources** | Every data point linked to its filing, period, and tier |
+| 16 | **Trading / Timing Context** ⚠️ | Short-term technical context only — cannot override fundamentals, valuation, or hard stops |
+| 17 | **Valuation vs. Expected Return** | Reverse-DCF bear/base/bull scenarios; required growth rate to justify current price |
+| 18 | **Quantitative Overlays** | Piotroski F-Score, Altman Z-Score (when inputs are available) |
+| 19 | **Summary Weighted Scorecard** | Aggregated rating across all dimensions; valuation locked at 30–40% weight for high-multiple names |
+| 20 | **Entry Price / Margin of Safety** | Fair value range with explicit compounding formula; downside protection math |
+| 21 | **Catalysts to Watch** ⚠️ | Upcoming events that could move the thesis — for monitoring only, not verdict drivers |
+| 22 | **Position Sizing / Portfolio Risk Framing** ⚠️ | Concentration, correlation, and sizing considerations — for execution only, not verdict drivers |
+| 23 | **Thesis Breakers / Kill Criteria** | Pre-defined conditions calibrated to the reverse-DCF assumptions that would invalidate the investment case |
+| 24 | **Final Verdict** | Buy / Hold / Avoid with explicit reasoning; must be consistent with scorecard weights |
+| 25 | **Sources** | Every data point labeled with its filing, period, and source tier |
+
+> ⚠️ **Sections 16, 21, and 22** (Trading/Timing, Catalysts, Position Sizing) are supporting sections only. They inform execution and monitoring. Combined, they carry a hard cap of 5% weight in the final scorecard and cannot override the verdict driven by valuation, business quality, hard stops, credit red flags, or owner-earnings math.
 
 ---
 
@@ -86,15 +92,25 @@ The Hard Stop Scan (Section 3) runs before any other analysis. If it surfaces a 
 
 ### Valuation as a structural override
 
-In a naive scoring system, a cluster of green qualitative checks can outvote a red valuation flag. This skill explicitly disables that behavior: for high-growth or high-multiple names, valuation and expected return is locked at 30–40% of the weighted scorecard, and the framework prohibits qualitative business-quality scores from masking a pricing problem. The most common failure mode in AI bull-market analysis is rationalizing expensive valuations through operational flattery. This rule prevents it structurally.
+In a naive scoring system, a cluster of green qualitative checks can outvote a red valuation flag. This skill explicitly disables that behavior. For high-growth or high-multiple names, valuation and expected return is locked at 30–40% of the weighted scorecard. That weight cannot be set lower than the dominant-risk weight declared earlier in the memo. Strong business quality cannot outvote a poor entry price.
+
+The rule also enforces internal consistency: if the final verdict says "wait for a better price," the numerical scorecard must not look like a strong buy. A memo that scores the business 8/10 overall but recommends waiting has a contradiction in it — and contradictions are resolved in favor of the harder constraint, which is price.
 
 ### Expected-return math, not just multiples
 
-Valuation analysis stops too early when it only reports P/E and EV/EBITDA. Section 16 adds a reverse-DCF table with bear, base, and bull scenarios answering one question: *what has to be true about this business for the stock to beat the market from current prices?* This forces the analysis to take a position rather than describe a range.
+Valuation analysis stops too early when it only reports P/E and EV/EBITDA. Section 17 adds a reverse-DCF table with bear, base, and bull scenarios answering one question: *what has to be true about this business for the stock to beat the market from current prices?* This forces the analysis to take a position rather than describe a range.
+
+The required sequence for the reverse-DCF is fixed and cannot be reversed: start with today's market cap or EV, apply the target return over the holding period to get the required exit value, divide by the exit multiple to get required future FCF or owner earnings, then compare that to current FCF or owner earnings to calculate the required CAGR. Always compound today's market cap forward first, then derive the required exit FCF. Deriving it in the opposite order produces systematically misleading results.
 
 ### Kill criteria tied to the entry thesis
 
-Generic exit signals ("if growth slows, reconsider") are not actionable. The kill criteria in Section 20 are derived directly from the reverse-DCF assumptions in Section 16. If the thesis requires 25% revenue growth to justify the current multiple, the kill criterion is calibrated to that number — and it is designed to trigger before the business visibly collapses, not after. For expensive growth stocks, a visible collapse means the multiple has already re-rated violently downward.
+Generic exit signals ("if growth slows, reconsider") are not actionable. The kill criteria in Section 23 are derived directly from the reverse-DCF assumptions in Section 17. If the thesis requires 25% revenue growth to justify the current multiple, the kill criterion is calibrated to that number — and it is designed to trigger before the business visibly collapses, not after. For expensive growth stocks, a visible collapse means the multiple has already re-rated violently downward.
+
+### Trading, catalysts, and sizing are capped at 5%
+
+Three sections in the memo — Trading / Timing Context (16), Catalysts to Watch (21), and Position Sizing / Portfolio Risk Framing (22) — serve execution and monitoring. They exist because the right business at the wrong entry point, or sized incorrectly for a portfolio, produces bad outcomes even when the thesis is correct.
+
+What they cannot do is drive the core verdict. Technicals, analyst price targets, RSI, moving averages, short interest, or upcoming catalysts do not change whether a business is cheap or expensive relative to its owner earnings. A stock that fails on valuation, cash-flow quality, a hard stop, or a thesis-breaking risk does not become a buy because the 50-day moving average is rising or because earnings are three weeks away. The combined scorecard weight for these three sections is hard-capped at 5%.
 
 ### Per-share economics alongside totals
 
@@ -106,11 +122,53 @@ Every material data point carries a tag: `[Verified]`, `[Market Data]`, `[Estima
 
 ### Memo format over checklist format
 
-Early versions produced a checklist — fine for coverage but easy to skim past. The final structure produces a 22-section investor memo with a fixed output order, a structured Final Verdict field, and prose reasoning rather than bullet ratings. The format change mattered: a memo forces synthesis; a checklist permits avoidance.
+Early versions produced a checklist — fine for coverage but easy to skim past. The final structure produces a 25-section investor memo with a fixed output order, a structured Final Verdict field, and prose reasoning rather than bullet ratings. The format change mattered: a memo forces synthesis; a checklist permits avoidance.
 
 ### Business-model-aware KPI layer
 
 A single universal metric set produces shallow analysis across sectors. NRR is meaningless for a bank; combined ratio is irrelevant for a SaaS company; credit losses as a percentage of revenue matter for a BNPL lender but not for an industrial. The skill classifies each company into one of 15 archetypes and loads the appropriate KPI library from `references/business-model-kpis.md`. One framework, calibrated per sector.
+
+### Archetype classification before KPI selection
+
+Section 2A runs before any KPI analysis begins. The skill classifies the business model first, then selects the correct metric library — not the other way around. A company cannot be evaluated against SaaS retention benchmarks if it is actually a marketplace, and cannot be held to marketplace take-rate standards if it is primarily a lender.
+
+Hybrid companies trigger multiple KPI libraries simultaneously. A fintech that combines a subscription product, a payment network, and a merchant lending book is evaluated against all three. Some examples of how archetype determines the metrics that matter:
+
+- **SaaS** — Net revenue retention, ARR/MRR growth, Rule of 40, gross margin profile, SBC as % of revenue
+- **Marketplace / platform** — GMV/GTV/TPV growth, take rate (calculated, not asserted), supply-demand balance, cohort health, liquidity density
+- **Payments / lending / BNPL** — Transaction loss rate, charge-offs, allowance coverage ratio, delinquency aging, credit-loss growth vs. revenue growth
+- **Banks / lenders** — Net interest margin, provision expense, charge-offs, CET1 ratio, deposit and funding mix
+- **REITs** — AFFO per share, debt maturity profile, cap rate trends, occupancy, same-store NOI
+- **Cyclicals** — Normalized margins across the cycle, current cycle position, inventory levels, commodity price sensitivity
+
+Misclassifying the archetype propagates errors through every downstream section. Getting this right first is not a formality — it is a prerequisite.
+
+### Credit and lending risk cannot be buried
+
+When a company has any exposure to lending, payments, BNPL, merchant cash advances, card issuing, or credit risk, the memo must surface that exposure explicitly. Revenue growth alone does not tell you whether the business is healthy — a lender growing revenue while credit losses grow faster is deteriorating, not expanding.
+
+The skill requires four distinct credit disclosures to be shown separately, not combined:
+
+1. **Income-statement transaction and loan losses** — the P&L impact in the period
+2. **Provision expense** — the cash-flow statement non-cash add-back (a different number)
+3. **Allowance coverage and charge-offs** — from the notes, showing how much buffer exists against future losses
+4. **Delinquency and aging data** — where disclosed, showing whether problems are building in the pipeline
+
+On top of that, the memo must calculate and compare credit-loss growth versus revenue growth and loan-book growth. A single quarter where credit losses grow more than 2× revenue growth is a yellow/orange watch flag. Two consecutive quarters above that threshold, or falling allowance coverage combined with rising charge-offs, becomes a hard-red thesis breaker. The skill will not let a strong headline revenue number hide a deteriorating credit book.
+
+### SBC must come from primary filings
+
+Stock-based compensation is the most commonly misdescribed line item in AI financial analysis. Third-party data providers (Macrotrends, Yahoo Finance, StockAnalysis, AlphaQuery, TIKR, and others) sometimes aggregate SBC differently from the primary filing — rolling in payroll taxes, miscounting periods, or pulling from the wrong statement. When a 10-K or 10-Q is available, the filing is authoritative and the aggregator is ignored.
+
+The skill requires SBC to be shown three ways before any directional statement is made: absolute dollars, percentage of revenue, and percentage of FCF. If SBC is falling as a share of revenue but rising in absolute dollars, both facts must appear. If SBC is low as a percentage of revenue but consumes 25%+ of FCF, the FCF picture is stated clearly — not papered over with the percentage framing.
+
+If primary filing SBC cannot be extracted, owner earnings are marked **Needs Review** and the memo is downgraded to a framework draft. No valuation or final verdict is produced until the number is sourced correctly.
+
+Owner earnings = FCF − SBC, period. A business that generates $1B of FCF but pays $400M in SBC has $600M of owner earnings. Calling that "$1B FCF company" is not wrong — it is just incomplete in a way that systematically flatters the valuation.
+
+### Cash-flow comparability flags
+
+Companies occasionally change how they classify cash flows between operating, investing, and financing activities. A reclassification that moves a recurring cost out of operating cash flow and into investing cash flow will make OCF and FCF look structurally better without any economic improvement. The skill is required to flag any announced or enacted presentation changes, explain whether the change reflects economic improvement or is purely a comparability issue, and normalize all period-over-period FCF comparisons across the change date.
 
 ### Source hierarchy with explicit tier labels
 
@@ -120,19 +178,21 @@ Every data point must be labeled with its source and tier. The hierarchy is enfo
 
 ## Evolution
 
-This skill started as a 9-item checklist adapted from a YouTube video and was rebuilt through five distinct rounds of iteration. The driving question at each round was the same: *what can still produce a falsely confident output, and how do we close that gap?*
+This skill started as a 9-item checklist adapted from a YouTube video and was rebuilt through six distinct rounds of iteration. The driving question at each round was the same: *what can still produce a falsely confident output, and how do we close that gap?*
 
 **Round 1 — From checklist to framework.** Added forensic accounting as a standalone check, ROIC analysis to separate valuable growth from value-destroying growth, per-share economics to catch dilution, and three quantitative overlays (Piotroski, Beneish, Altman). Added Hard Stop conditions that bypass the scorecard entirely.
 
 **Round 2 — Source discipline and weighted scoring.** All checks had been treated as equally important. Added dominant-risk weighting by company archetype, kill criteria tied to the thesis, reverse-DCF expected-return math, and confidence tags on every claim. Added a Data Integrity Check that runs before scoring begins.
 
-**Round 3 — Professional-grade rebuild.** Output still read like a checklist, not an investor memo. Rebuilt as a 22-section structured memo. Added business-model-specific risk checks backed by a 300-line sector KPI reference file. Added mandatory SBC-adjusted owner earnings, full balance sheet debt separation, and a structured Final Verdict format.
+**Round 3 — Professional-grade rebuild.** Output still read like a checklist, not an investor memo. Rebuilt as a 22-section structured memo (later expanded to 25). Added business-model-specific risk checks backed by a 300-line sector KPI reference file. Added mandatory SBC-adjusted owner earnings, full balance sheet debt separation, and a structured Final Verdict format.
 
 **Round 4 — Closing specific accuracy gaps.** Eleven targeted fixes: buyback analysis required five specific data points; SBC required both absolute and percentage trends; take rates required explicit calculation rather than assertion; credit losses gained hard-red thresholds; kill criteria for expensive growth stocks were calibrated to fire before visible distress.
 
 **Round 5 — Filing-data extraction discipline.** EV calculation was corrected to deduct marketable securities and short-term investments, not just cash. Data Integrity Check expanded from 26 to 49 rows. "Needs Review" was restricted to data genuinely absent from all reviewed filings — it can no longer be applied to items present in a 10-Q or 10-K that was cited. Entry-price table now shows the formula for each column.
 
-The skill grew from 9 checks to a 931-line framework with a 312-line sector KPI library. Each round made it harder for bad inputs to produce confident outputs, and harder for a strong operational story to paper over a broken valuation.
+**Round 6 — Decision-usefulness and portfolio framing.** Added three new sections — Trading / Timing Context, Catalysts to Watch, and Position Sizing / Portfolio Risk Framing — to make the memo more useful at the point of actual execution, while capping their combined scorecard weight at 5% so they cannot override the fundamental verdict. Added Section 2A (Company Archetype Classification) as an explicit prerequisite step before KPI selection. Tightened SBC sourcing to require primary filings when available, with a hard block on owner-earnings calculations if the filing value cannot be extracted. Added structured credit and lending risk disclosure rules with severity tiers (watch, red flag, thesis breaker). Added cash-flow comparability flags for classification changes. Enforced scorecard consistency: if the verdict says "wait for a better price," the numerical score must not look like a buy. Fixed the reverse-DCF sequence to always compound today's market cap forward first. The goal throughout Round 6 was the same as every prior round — improve practical decision support without turning the skill into a trading signal generator.
+
+The skill grew from 9 checks to a 25-section framework with a 312-line sector KPI library. Each round made it harder for bad inputs to produce confident outputs, and harder for a strong operational story to paper over a broken valuation.
 
 ---
 
