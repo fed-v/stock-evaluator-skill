@@ -1,6 +1,6 @@
 # Shopify Inc. (NASDAQ/TSX: SHOP) — Pre-Purchase Investment Memo
 
-**Prepared for:** Fed Venturino
+**Prepared for:** fed_v
 **Date:** May 24, 2026
 **Context:** New buy decision · Full framework memo · Long-term horizon (3–5+ years)
 **Current price:** $103.00 (close 5/22/26)
