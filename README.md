@@ -1,5 +1,7 @@
 # Stock Evaluator — Pre-Purchase Analysis Skill
 
+![Stock Evaluator](b5d751b2-8c8a-4970-94e9-32e4a965ad95.png)
+
 **A professional-grade Claude skill that turns any stock ticker into a structured investor memo — grounded in private equity due-diligence practices.**
 
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue?style=flat-square)](LICENSE)
