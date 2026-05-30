@@ -36,18 +36,19 @@ Produces a finished investor memo — not a transcript of a process.
 15. Historical Price & Volatility
 16. Trading / Timing Context
 17. Valuation vs. Expected Return
-18. Quantitative Overlays (only if inputs are available)
-19. Summary Weighted Scorecard
-20. Entry Price / Margin of Safety
-21. Catalysts to Watch
-22. Position Sizing / Portfolio Risk Framing
-23. Thesis Breakers / Kill Criteria
-24. Final Verdict
-25. Sources
+18. Intrinsic Value / Fair Value Estimate
+19. Quantitative Overlays (only if inputs are available)
+20. Summary Weighted Scorecard
+21. Entry Price / Margin of Safety
+22. Catalysts to Watch
+23. Position Sizing / Portfolio Risk Framing
+24. Thesis Breakers / Kill Criteria
+25. Final Verdict
+26. Sources
 
 **Important separation principle:**
 - Sections 1–15, 17, 19, 20, 23: drive the business thesis, valuation thesis, and red-flag analysis.
-- Sections 16 (Trading/Timing), 21 (Catalysts), 22 (Position Sizing): support **timing, monitoring, and risk framing only**. They must never override fundamentals, valuation, or red flags. Their collective influence on the final verdict is capped at **5%**.
+- Sections 16 (Trading/Timing), 22 (Catalysts), 23 (Position Sizing): support **timing, monitoring, and risk framing only**. They must never override fundamentals, valuation, or red flags. Their collective influence on the final verdict is capped at **5%**.
 
 For business-model-specific KPI libraries, read: `references/business-model-kpis.md`
 
@@ -67,14 +68,36 @@ Before producing any output, follow every rule below without exception.
 **Period and label discipline**
 - Never mix fiscal-year, quarterly, and TTM figures without labeling each explicitly.
 - Never call fiscal-year revenue "TTM." Calculate TTM correctly: latest FY revenue + current-year interim revenue − prior-year comparable interim revenue.
+- **TTM consistency check (hard rule):** Before producing the memo, verify every TTM figure by re-applying the formula. If the value stated for "TTM revenue" (or TTM FCF, TTM SBC, TTM losses, etc.) does not match `latest FY + current-year interim − prior-year comparable interim`, the output fails QC and must be regenerated with corrected arithmetic. Show the three component figures alongside the TTM total so the reader can verify.
 - Never say "revenue growth beat expectations by X%" unless analyst consensus figures are sourced. Say "revenue grew X% year-over-year" unless the beat is directly supported.
 - Always calculate growth rates directly from the two filed values: growth = (current period − comparable prior period) ÷ comparable prior period. Do not approximate, round to the nearest convenient figure, or carry forward a growth rate from another source without verification. This applies to revenue, FCF, OCF, SBC, loan book, losses, and every other metric where a YoY or QoQ growth rate is asserted.
+
+**Currency discipline**
+- **Label every monetary figure with its currency** (USD, CAD, EUR, GBP, JPY, etc.). Do not assume the reader can infer.
+- **Never mix currencies in a single calculation.** This applies especially to dual-listed stocks and companies that report financials in one currency but trade in another (e.g., a Canadian company reporting in CAD but with a U.S. ADR price in USD).
+- **Dividend yield must use the same currency for numerator and denominator.** Convert dividend per share and stock price into a single currency at a stated exchange rate (date shown) before dividing. A CAD dividend divided by a USD price is not a yield.
+- **Per-share intrinsic value, multiples, and valuation outputs** must be in a single declared currency. State the currency at the top of Section 2 (Company Snapshot) and use it consistently throughout.
+- If financials are reported in one currency and the user holds the stock in a different listing (e.g., U.S. holder owns a Canadian listing, or a European ADR), present per-share figures in **both** currencies with the exchange rate and date explicit. The intrinsic-value comparison must be made in the holder's purchase currency.
+- For companies with significant FX translation exposure, note constant-currency vs. reported growth separately when material.
 
 **Debt and balance sheet**
 - Never confuse total liabilities with financial debt.
 - Always separate: cash and equivalents / marketable securities / short-term financial debt / long-term financial debt / finance leases / operating leases / operating liabilities / total liabilities.
 - Never say "effectively debt-free" unless financial debt is truly minimal relative to cash and FCF generation.
 - For financial companies, use industry-specific capital and liquidity metrics rather than generic debt ratios.
+- **Debt-leverage reconciliation rule:** When the memo reports both adjusted EBITDA (or adjusted EBITDAX, distributable cash flow, etc.) and a Debt/EBITDA ratio, the implied debt figure must reconcile with the reported debt figure on the balance sheet:
+  `Implied debt = Adjusted EBITDA × Debt/EBITDA`
+  If reported debt differs from implied debt by more than 10–15%, the memo must explain the difference. Common reasons:
+  - Adjusted debt vs. balance-sheet debt (analysts often adjust)
+  - Net debt vs. gross debt (one subtracts cash, one doesn't)
+  - Preferred equity or hybrid securities included as debt-equivalent
+  - Project-level / non-recourse debt at subsidiaries
+  - Operating leases capitalized into the debt figure
+  - FX conversion between reporting currency and debt currency
+  - Non-controlling interest in subsidiary debt
+  - Pro-forma adjustments for recent acquisitions or divestitures
+  If the difference cannot be explained from the filing, **mark EV, debt, and leverage as Needs Review** rather than report a Debt/EBITDA figure that does not reconcile. Do not silently use one definition in one section and a different definition in another.
+- For pipeline, utility, infrastructure, and other leverage-intensive archetypes where Debt/EBITDA is a primary metric: the reconciliation must be shown explicitly in the Data Integrity Check Notes column for the debt row.
 
 **SBC and owner earnings**
 - Never ignore SBC in owner-earnings calculations.
@@ -94,13 +117,32 @@ Before producing any output, follow every rule below without exception.
 **Buybacks**
 - Always distinguish buyback authorization from actual repurchases executed.
 - If actual repurchases occurred in the period under review, always show: shares repurchased, dollars spent, average repurchase price, remaining authorization, and whether repurchases appear value-accretive relative to current valuation.
+- **Buyback source-of-truth rule:** All five figures (shares, dollars, average price, total authorization, remaining authorization) must come from the **repurchase activity table** disclosed in the 10-Q/10-K (typically in Part II Item 2 — Unregistered Sales of Equity Securities and Use of Proceeds, or in the equity/notes section). Do **not** derive average repurchase price by dividing total cash spent on repurchases (from the cash-flow statement's financing activities) by total shares — this can be inaccurate because of timing differences, accrued repurchases, and rounding. Use the average price disclosed in the repurchase activity table directly.
 - Do not say repurchase activity was undisclosed or unavailable if a 10-Q or 10-K covers the period.
 - Buybacks at high valuations should be analyzed skeptically. A buyback is only shareholder-friendly if value-accretive or efficiently offsetting dilution.
 
 **Take rate and KPI calculations (marketplace/platform companies)**
 - Calculate take rate explicitly as: revenue ÷ GMV, GTV, TPV, or equivalent volume metric.
 - Show current period vs. prior period.
+- **Take-rate source-of-truth rule:** If the filing discloses GMV/GTV/TPV for the period, use that exact figure. Do not approximate, round, or substitute a different period's value. If presenting a TTM take rate, calculate it as `TTM revenue ÷ TTM GMV` (using TTM components built per the TTM consistency formula in Period and label discipline) — not as a single quarter ratio applied to TTM revenue, and not as a generic approximation.
 - Do not say take rate is rising or falling unless the calculation supports the direction.
+- Do not say the volume metric is unavailable for the period if the 10-Q/10-K discloses it.
+
+**KPI definition discipline (applies to all archetype-specific KPIs)**
+- **Do not conflate different metrics.** Common confusions to avoid:
+  - **Penetration vs. growth:** Penetration is `[segment volume] ÷ [total volume]` (a ratio, %); growth is the YoY change in that segment (also %, but a different number). A 41% growth rate in Payments volume is not the same as 41% penetration. Report both separately when both are disclosed.
+  - **GPV vs. GMV vs. payment volume vs. TPV:** These are distinct disclosed figures. Use the company's exact label. Do not substitute one for another.
+  - **Gross vs. net:** Gross take rate vs. net take rate, gross merchandise vs. net merchandise, gross revenue vs. net revenue — always use the company's defined term and state which is being used.
+  - **% of revenue vs. % of volume vs. % of customers:** A metric "as a % of revenue" is not the same as "as a % of GMV" or "as a % of merchants." Specify the denominator every time.
+- **Always state the formula** for any KPI being reported. Example: *"Payments penetration = Payments GPV ÷ total GMV = $X ÷ $Y = Z%."* If the formula cannot be shown, mark the KPI Needs Review rather than report a number whose definition is ambiguous.
+- **Always show both numerator and denominator** for any ratio-type KPI (penetration, take rate, attach rate, etc.), in addition to the resulting percentage.
+- **Distinguish levels from changes.** Penetration of 67% is a level. Penetration up from 64% to 67% is a 3-percentage-point change (or a ~4.7% relative change). Do not report a change as a level or vice versa.
+- **Multiple-labeling rule (market-cap vs. enterprise-value multiples):** Always pair the numerator and denominator correctly and label the resulting ratio precisely:
+  - **Market-cap-based multiples** (numerator = market cap or share price) pair with **equity-level** cash-flow metrics. Acceptable labels: `P/E`, `P/FCF`, `P/DCF`, `P/AFFO`, `P/FFO`, `P/B`, `P/TBV`, `Price/Sales`. The "P" denotes Price (i.e., market cap).
+  - **Enterprise-value-based multiples** (numerator = EV) pair with **enterprise-level** cash-flow metrics. Acceptable labels: `EV/EBITDA`, `EV/EBIT`, `EV/Sales`, `EV/FCF` (where FCF here is unlevered FCF or enterprise FCF, not equity FCF).
+  - **Common error:** Computing market-cap ÷ DCF and labeling it `EV/DCF`. This is wrong. Either keep market cap in the numerator and call it `P/DCF`, or use EV in the numerator and pair it with an enterprise-level cash-flow metric (typically EBITDA, not DCF — because DCF is calculated after interest, which is an equity-level figure).
+  - For pipelines, MLPs, utilities, and other income-stock archetypes: **P/DCF** uses market cap; **EV/EBITDA** uses enterprise value. Do not cross-label them.
+  - If a multiple is reported, the memo must state both numerator and denominator the first time it appears (e.g., *"P/DCF (price ÷ distributable cash flow per share)"*). Subsequent references can use the shorthand.
 
 **Credit and loss metrics (payments, lending, BNPL, merchant advances, receivables financing)**
 - **Mandatory disclosure when the archetype applies:** When the company has payments, lending, BNPL, merchant cash advances, receivables financing, or other credit exposure, the memo **must include** the income-statement transaction and loan loss figure for: current period, prior comparable period, year-over-year growth rate, current period as % of revenue, prior period as % of revenue, and a direct comparison of loss growth rate vs. revenue growth rate. Do not omit this line. Do not say it "needs to be pulled" if the 10-Q/10-K discloses it.
@@ -115,21 +157,24 @@ Before producing any output, follow every rule below without exception.
 - **Credit-loss severity classification (three categories, in order of severity):**
   1. **🟡 Ongoing Yellow/Orange Watch** — Credit losses growing faster than revenue for any single quarter. Elevates concern but does not break the thesis.
   2. **🔴 Red Flag (single period)** — One full fiscal year with credit losses growing more than 2× faster than revenue. Material red flag in the scorecard, but recoverable if subsequent periods normalize.
-  3. **☠️ Hard-Red / Thesis Breaker** — Either (a) two consecutive quarters with credit losses growing more than 2× faster than revenue, OR (b) worsening allowance coverage combined with rising charge-offs. Treat as a hard stop equivalent: default verdict to AVOID unless there is compelling, specific evidence of imminent reversal. Add to Section 23 Kill Criteria as ☠️ Kill.
+  3. **☠️ Hard-Red / Thesis Breaker** — Either (a) two consecutive quarters with credit losses growing more than 2× faster than revenue, OR (b) worsening allowance coverage combined with rising charge-offs. Treat as a hard stop equivalent: default verdict to AVOID unless there is compelling, specific evidence of imminent reversal. Add to Section 24 Kill Criteria as ☠️ Kill.
 - Each of these three severity levels must be applied **separately** — do not collapse them into a single "red flag" treatment. The scorecard and final verdict consequences differ.
 
 **Cash-flow comparability**
 - If the company changes cash-flow classification or presentation between periods, flag it clearly.
 - **Always check the latest 10-Q and 10-K for announced future reclassifications** between operating, investing, and financing activities — including changes that will take effect in a future quarter or fiscal year. These are disclosed in the notes to the financial statements (often under "Recent Accounting Pronouncements" or business-specific disclosure). Do not state "no classification changes were found" without reviewing these notes.
+- **Mandatory search-term sweep:** Before concluding no reclassification was disclosed, search the full MD&A and notes for these terms: *"reclassification," "reclassified," "presentation change," "cash flows," "operating activities," "investing activities," "financing activities," "merchant cash advances," "loans receivable," "previously reported," "prospectively,"* and any other phrase that signals a presentation change. If any of these surface a disclosure, include it in the memo.
 - **Prohibition on denial:** If the filing discloses any past or upcoming reclassification — whether already in effect or scheduled for a future period — do not state that no reclassification was identified. Quote the disclosure language or paraphrase it accurately, including the effective date.
 - A reclassification is a **comparability issue, not an economic improvement or deterioration**. Reported OCF or FCF can rise or fall purely because of the reclassification — do not attribute the change to operating performance.
 - **Mandatory normalization warning:** When a future reclassification has been announced, include an explicit warning in the memo such as: *"Future OCF and FCF comparisons must be normalized for the [item] reclassification effective [date]. Pre- and post-effective-date figures are not directly comparable."* This warning must appear in Section 8 (Cash-Flow Quality) and again in Section 13 (Earnings Quality) where comparability matters.
 - Normalize FCF where possible and label the normalization (e.g., "FCF excluding reclassified [item] for comparability").
-- Flag reclassifications as catalysts only in the comparability sense (Section 21 rule), never as economic catalysts.
+- Flag reclassifications as catalysts only in the comparability sense (Section 22 rule), never as economic catalysts.
 
 **Forensic and audit discipline**
 - Always review the auditor opinion and critical audit matters (CAMs).
 - If the 10-K has been reviewed, list each CAM by its actual title from the auditor report — do not summarize generically or say "no CAMs flagged" when they exist. Example titles take the form *"Revenue Recognition — Principal versus Agent Considerations,"* *"Valuation of Goodwill,"* etc.
+- **Auditor identity:** State the actual auditor named in the 10-K (e.g., PricewaterhouseCoopers LLP, Ernst & Young LLP, Deloitte & Touche LLP, KPMG LLP, BDO USA LLP, or other). Do not guess. Do not substitute a different Big-Four name for the one listed in the auditor report.
+- **CAM completeness rule (hard):** Use only the CAMs actually listed in the auditor report. Do not infer additional CAMs based on the business model or topics that "should be" CAMs. If the auditor report lists one CAM, the memo lists one CAM. Do not invent or augment.
 - Do not say a gross-vs-net or principal-vs-agent judgment is "not flagged" if the auditor report identifies a CAM on that exact topic.
 - A CAM is not automatically a red flag — mention it neutrally when it touches revenue recognition, reserves, fair value, inventory, goodwill, or other significant judgments.
 - Never say "earnings quality is clean" solely because there are no restatements.
@@ -153,7 +198,7 @@ Before producing any output, follow every rule below without exception.
 - Do not call a pullback a "margin of safety" unless the expected-return math explicitly supports it.
 - Do not present a precise forensic score (Piotroski, Beneish, Altman) unless it is actually calculated from inputs. If estimated, label it Estimated. If inappropriate for the company type, label it Not Applicable.
 
-**Timing, catalysts, and position sizing (Sections 16, 21, 22)**
+**Timing, catalysts, and position sizing (Sections 16, 22, 23)**
 - Never let technical analysis override a broken business thesis.
 - Never let analyst targets override expected-return math.
 - Never call a stock cheap only because it is down from its highs.
@@ -205,7 +250,7 @@ The rules above are not optional — they govern whether the memo can be trusted
 | 7 | Were the latest 10-Q and 10-K notes checked for announced future cash-flow reclassifications? | Cash-flow comparability |
 | 8 | If a reclassification was found, is it labeled a comparability issue (not an economic change)? | Cash-flow comparability |
 | 9 | Does Section 17 show the full reverse-DCF table with all columns: current value → required exit value → required exit FCF → required CAGR? Not just a verbal summary? | Reverse DCF required output table |
-| 10 | Does the entry-price table (Section 20) show IRRs that are consistent with the Section 17 base-case exit value? | Entry-price IRR-consistency rule |
+| 10 | Does the entry-price table (Section 21) show IRRs that are consistent with the Section 17 base-case exit value? | Entry-price IRR-consistency rule |
 | 11 | Was every growth rate calculated directly from two filed values, not approximated or carried over? | Period and label discipline |
 | 12 | If a primary filing and a third-party source conflicted on any figure, was the primary filing used and the conflict flagged? | Source Hierarchy |
 | 13 | If any third-party figure was used as a shortcut, is it labeled Unverified and excluded from the valuation and verdict? | Source Hierarchy |
@@ -219,11 +264,71 @@ The rules above are not optional — they govern whether the memo can be trusted
 | 21 | Do all Section 5 weights sum to exactly 100%, with the sum stated explicitly in the memo? | Section 5 — Weight arithmetic check |
 | 22 | For high-growth / high-multiple stocks, does Valuation / Expected Return carry 30–40%, and do Trading/Catalysts/Sizing carry no more than **5%** combined? If credit losses are a major business-model risk, does Credit / Loan-Loss Trajectory carry 10–15%? | Section 5 — Weight constraints |
 | 23 | If the company has credit exposure, has each loss observation been classified into the correct severity tier (🟡 Watch / 🔴 Red Flag / ☠️ Thesis Breaker), with downstream scorecard and verdict consequences applied accordingly? | Credit-loss severity classification |
-| 24 | Do the weights shown in Section 19 (Summary Weighted Scorecard) exactly match the weights stated in Section 5 (Dominant-Risk Weighting)? Any divergence is a QC failure. | Section 19 — Weight propagation rule |
-| 25 | If Valuation / Expected Return is rated 🔴 and carries 30%+ weight, has the verdict been overridden to WATCH or AVOID — regardless of the numerical score? | Section 19 — Score-verdict alignment rule |
-| 26 | Does the final numerical score align with the final verdict? If they appear to diverge (e.g., score ≥ 70 but verdict is WATCH), is the override reason stated explicitly in the memo? | Section 19 — Score-verdict consistency check |
+| 24 | Do the weights shown in Section 20 (Summary Weighted Scorecard) exactly match the weights stated in Section 5 (Dominant-Risk Weighting)? Any divergence is a QC failure. | Section 20 — Weight propagation rule |
+| 25 | If Valuation / Expected Return is rated 🔴 and carries 30%+ weight, has the verdict been overridden to WATCH or AVOID — regardless of the numerical score? | Section 20 — Score-verdict alignment rule |
+| 26 | Does the final numerical score align with the final verdict? If they appear to diverge (e.g., score ≥ 70 but verdict is WATCH), is the override reason stated explicitly in the memo? | Section 20 — Score-verdict consistency check |
+| 27 | Does Section 18 include the bear/base/bull scenario table, the summary table, and a probability-weighted intrinsic value? | Section 18 — Required outputs |
+| 28 | Is the valuation label (undervalued / fairly valued / overvalued) consistent with the classification rules, and softened when confidence is Low? | Section 18 — Classification + label-softening rules |
+| 29 | Does Section 25 (Final Verdict) include the intrinsic-value summary: current price, base-case IV/share, probability-weighted IV/share, valuation label with confidence, and margin of safety? | Section 18 — Integration with Final Verdict |
+| 30 | If the intrinsic-value estimate relies on stale or unverified data, is confidence marked Low and is the estimate excluded from justifying a Buy rating? | Section 18 — QC rule |
+| 31 | Has every TTM figure been verified against the formula (latest FY + current interim − prior comparable interim), with all three component figures shown? | TTM consistency check |
+| 32 | Is the auditor named exactly as listed in the 10-K, and are CAMs listed exactly as titled in the auditor report (no inferred or invented CAMs)? | Auditor identity + CAM completeness rules |
+| 33 | Has the full MD&A and notes been searched for reclassification keywords ("reclassification," "presentation change," "operating activities," "investing activities," etc.) before concluding no reclassification was disclosed? | Cash-flow comparability — mandatory search-term sweep |
+| 34 | Does Section 18 reconcile with Section 17? If Section 17 implies a weak base-case IRR, has Section 18 avoided calling the stock "clearly undervalued" or explained the divergence? | Section 18 — Reconciliation with Section 17 |
+| 35 | If bull-case IV is more than 2× base-case IV, has the memo flagged probability-weighted IV as bull-case sensitive, lowered confidence, and judged margin of safety against base-case (not probability-weighted) value? | Section 18 — Bull-case sensitivity guardrail |
+| 36 | Is Section 18 output free of scratchwork phrases ("wait, let me recalculate", "correcting the bear case", etc.)? | Section 18 — Output cleanliness |
+| 37 | Does the Section 25 Intrinsic Value Summary include the bull-case-sensitive flag and margin of safety vs. **both** base case and bear case? | Section 18 — Final Verdict integration |
+| 38 | Are all per-share intrinsic-value figures in Section 18 **present values** (year-N value discounted to today at a stated discount rate), with the discount rate and horizon shown explicitly? Is the valuation label based on present value, not undiscounted year-N value? | Section 18 — Present-value discipline |
+| 39 | Does the Section 18 Scenario table show year-N value and PV of year-N value as **separate columns**, with present intrinsic value per share computed from the PV? | Section 18 — Scenario table format |
+| 40 | If buyback details are reported, did they come from the repurchase activity table in the filing — not from dividing financing-activities cash flow by share count? | Buyback source-of-truth rule |
+| 41 | If a take rate is reported, was the volume metric (GMV/GTV/TPV) sourced from the exact filing value for the period, and is TTM take rate calculated as TTM revenue ÷ TTM GMV? | Take-rate source-of-truth rule |
+| 42 | For any archetype-specific KPI (penetration, take rate, attach rate, NRR, churn, etc.), is the formula stated, are numerator and denominator shown, and are levels never confused with changes? Are GPV/GMV/TPV/payment volume kept distinct from each other and from their growth rates? | KPI definition discipline |
+| 43 | Is one EV convention (Strict or Adjusted) declared in the Company Snapshot and applied consistently across every section that references EV? Are the same long-term investments classified the same way throughout? | EV convention consistency rule |
+| 44 | For every displayed TTM figure (revenue, FCF, OCF, SBC, losses, etc.), does the formula `latest FY + current interim − prior comparable interim` produce the displayed value? If not, the output fails QC. | TTM consistency hard rule (also enforced by checklist row 31) |
+| 45 | If the company is an income-stock archetype (REIT, utility, pipeline/MLP, dividend aristocrat, BDC), does Section 18 calculate intrinsic value as PV of dividends + PV of terminal value (both shown explicitly in a table), and does Section 17 include current yield as an explicit component of expected return? | Section 18 — Income-stock intrinsic value rules |
+| 46 | For REITs specifically, is AFFO/share used as the key cash-flow metric (not EPS, FCF, or FFO alone), with payout ratio and dividend sustainability shown? | Section 18 — REIT-specific rules |
+| 47 | If a 10-K was reviewed, are CAMs listed by their exact title from the auditor report — not guessed based on the company's business model (e.g., "likely impairment-related" is not acceptable)? | Auditor identity + CAM completeness rules |
+| 48 | Does the final memo show only one clean scorecard — no failed weighting attempts, "weights sum to 97% — adjusting" text, multiple drafts, or recalculation notes? | Hard-Fail HF-4 — Scorecard cleanliness |
+| 49 | Is every monetary figure labeled with its currency (USD, CAD, EUR, etc.), and does every per-share calculation, multiple, dividend yield, and intrinsic-value comparison use a single declared currency throughout? For dual-listed stocks, are figures shown in both reporting and trading currencies with the exchange rate stated? | Currency discipline |
+| 50 | For income-stock archetypes, does the verdict use the income-stock language table (Attractive / Fairly valued / Slightly overvalued — Starter only / Overvalued / Hold-Starter)? Has "Strong Buy" been avoided unless margin of safety vs. base-case IV is 15%+ AND distribution coverage is healthy (payout < ~85%)? | Section 18 — Income-stock verdict language |
+| 51 | Are all intrinsic-value reports presented as bear/base/bull ranges (not a single fake-precise number), with the classification label anchored to the base case? | Section 18 — Fair-value ranges, not single numbers |
+| 52 | If the memo reports both adjusted EBITDA and Debt/EBITDA, does implied debt (adj. EBITDA × Debt/EBITDA) reconcile with reported balance-sheet debt within 10–15%? If not, is the difference explained explicitly (adjusted vs. balance-sheet, net vs. gross, preferred, project-level debt, leases, FX, NCI)? | Debt-leverage reconciliation rule |
+| 53 | For income-stock archetypes, does Section 17 use the yield-plus-growth-plus-multiple decomposition as the **primary** expected-return framework? If a terminal-value-only reverse DCF is shown, is it explicitly labeled "capital-appreciation-only — secondary cross-check"? | Section 18 — Income-stock expected-return framework |
+| 54 | For pipeline/utility/infrastructure/income-stock archetypes, is **Full-Strict EV** used by default (including preferred equity and non-controlling interest in additions)? If Simplified EV was used, is preferred equity and NCI confirmed immaterial? | EV convention — income-stock default |
+| 55 | For commodity-pass-through archetypes (pipelines, midstream, utilities, energy marketers), is valuation primarily anchored to adjusted EBITDA, DCF, DCF/share, distribution coverage, and Debt/EBITDA — not Price/Sales, EV/Revenue, or revenue growth? | Section 7 — Commodity pass-through rule |
+| 56 | Are all multiples labeled correctly? P-prefix multiples (P/E, P/FCF, P/DCF, P/AFFO, P/B) use market cap; EV-prefix multiples (EV/EBITDA, EV/EBIT, EV/Sales) use enterprise value. No mislabeling such as "EV/DCF" for a market-cap ÷ DCF calculation. | Multiple-labeling rule |
+| 57 | Is the base-case exit multiple near the current trading multiple or mid-cycle historical multiple? If the base-case exit multiple is materially higher than current, is the re-rating explicitly justified by a documented catalyst — and not silently embedded into the base case? | Section 18 — Exit-multiple discipline |
 
 If a single item fails, the memo is not Decision-Grade. Fix the failure and re-verify before delivery. If structural fixes are impossible with available data, downgrade the memo to **Framework Draft — Not Trade-Ready** rather than ship inaccurate Decision-Grade output.
+
+### Hard-Fail QC Triggers (auto-regenerate)
+
+A handful of failure modes are severe enough that the memo must be **regenerated** before delivery — they cannot be patched in-place or shipped with caveats. When any of the following are present in a draft, the memo fails QC and must be regenerated cleanly:
+
+| # | Trigger | Mandatory Action |
+|---|---------|------------------|
+| HF-1 | Memo states "no cash-flow reclassification was found" when the latest 10-Q or 10-K actually discloses one (past, current, or scheduled for a future period) | Regenerate with the reclassification disclosed in Section 8 and/or Section 6, with effective date, treated as a comparability issue (never as economic improvement), and with the normalization warning per Section 8 rules |
+| HF-2 | Auditor or CAM listed as "Needs Review" when the 10-K has been cited or reviewed | Regenerate with the auditor's actual name and the exact CAM titles from the auditor report — no inference, no substitution, no extras |
+| HF-3 | Buyback average repurchase price derived by dividing financing-activities cash flow by share count, rather than taken from the repurchase activity table in the filing | Regenerate using the repurchase activity table figures (shares, dollars, average price, total authorization, remaining authorization). The cash-flow-statement figure may be mentioned only as cash paid / settlement timing — never as the source of average price |
+| HF-4 | Section 19/20 scorecard contains weight scratchwork, failed sum attempts ("weights sum to 97% — adjusting"), or multiple scorecard versions | Regenerate with a single clean scorecard summing to exactly 100% |
+| HF-5 | Score label numerically maps to a different verdict than the stated verdict (e.g., score 75 displayed but verdict is WATCH / WAIT) without an explicit override explanation per Section 20 rules | Regenerate so the score band aligns with the verdict, OR explicitly state the override and reason inline |
+| HF-6 | Market/technical data (52-week high/low, beta, RSI, moving averages, post-earnings move) presented as numbers without a source and date, or estimated/guessed | Regenerate with sourced data + dates, OR mark each unsourced field "Needs Review" and omit from interpretation. Never present guessed market data as fact |
+| HF-7 | Memo opens with internal process text ("I now have all the data...", "let me compile the memo...", "before I dive in...", calculation scratchpad) | Regenerate so the memo begins directly with the disclaimer and Section 2 (Company Snapshot) |
+| HF-8 | Per-share intrinsic-value figures in Section 18 presented as undiscounted year-N values rather than present values | Regenerate with explicit discounting (year-N value ÷ (1 + discount rate)^N), discount rate and horizon stated, valuation label based on present value |
+| HF-9 | Displayed TTM value conflicts with the formula shown beside it (e.g., TTM revenue formula gives $12,366M but the memo says $13,330M) | Regenerate with arithmetic recomputed; show the three component values and the resulting TTM value on the same line so the math is verifiable |
+| HF-10 | Two different metrics conflated (e.g., growth rate reported as penetration %, GPV reported as GMV, gross substituted for net, level reported as change), or a ratio reported without its numerator and denominator | Regenerate with each metric clearly labeled, formula stated, numerator and denominator shown |
+| HF-11 | EV convention drifts between sections — e.g., one section deducts long-term investments as "liquid," another classifies them as "strategic / illiquid" | Regenerate with one EV convention declared in the Company Snapshot (Strict or Adjusted) and applied consistently everywhere |
+| HF-12 | Income-stock archetype (REIT, utility, pipeline/MLP, dividend aristocrat, BDC, or other income-oriented business) and Section 18 calculates intrinsic value from terminal value only — without an explicit PV-of-dividends or PV-of-distributions component | Regenerate Section 18 with the dividend-inclusive formula: present intrinsic value / share = PV of expected dividends over horizon + PV of terminal equity value. Show both components in the required table. For REITs, use AFFO/share; for MLPs, DCF/share; for BDCs, NII/share. Section 17 expected-return decomposition must also include current yield as an explicit component |
+| HF-13 | Auditor report from a reviewed 10-K is available but the memo lists a guessed or generic CAM ("likely related to fair value of investments…", "probably impairment of long-lived assets…") instead of the exact CAM title from the auditor report | Regenerate using the exact CAM title(s) from the auditor report. If the 10-K is cited but the CAM cannot be extracted, mark Needs Review — do not guess. For income stocks, CAMs often involve impairment, lease intangibles, fair value, or long-lived assets, but the memo must use the actual auditor wording, not these examples |
+| HF-14 | Dividend yield, intrinsic value, or any per-share calculation mixes currencies (e.g., CAD dividend ÷ USD price, or per-share IV in one currency compared to a price in another) | Regenerate with a single declared currency throughout. Convert at a stated exchange rate with date. For dual-listed stocks, show per-share figures in both the reporting and trading currencies, with the exchange rate explicit |
+| HF-15 | Income-stock archetype (REIT, utility, pipeline/MLP, dividend aristocrat, BDC) with verdict "Strong Buy" or "Compelling" assigned to a stock that is fairly valued or only slightly below base-case IV, OR with dividend coverage weakening (payout > ~95% of AFFO/DCF/NII) | Regenerate using the Income-stock verdict language table. An excellent income business at fair value is "Hold / Starter / Wait for better entry" — never "Strong Buy." A Strong Buy on an income stock requires both 15%+ margin of safety vs. base-case present IV AND well-covered distribution |
+| HF-16 | Income-stock archetype and Section 17 uses a terminal-value-only reverse DCF as the main expected-return framework without an explicit dividend/distribution component | Regenerate Section 17 with the dividend-inclusive decomposition as the primary framework: `Expected return ≈ current yield + per-share growth + multiple change`. If a reverse DCF without dividends is also shown, label it "capital-appreciation-only — secondary cross-check" and do not draw the main conclusion from it |
+| HF-17 | Memo reports both adjusted EBITDA and a Debt/EBITDA ratio, but the implied debt (adjusted EBITDA × Debt/EBITDA) differs from reported balance-sheet debt by more than 10–15% with no explanation | Regenerate with the reconciliation shown explicitly. Identify the source of the difference (adjusted vs. balance-sheet debt, net vs. gross, preferred equity, project-level debt, leases, FX, NCI). If the difference cannot be explained from the filing, mark EV, debt, and leverage as Needs Review rather than report figures that do not reconcile |
+| HF-18 | Commodity-pass-through archetype (pipeline, midstream, utility, energy marketer, commodity trader) and the memo uses Price/Sales, EV/Revenue, or revenue growth as a primary valuation anchor | Regenerate using adjusted EBITDA, DCF, DCF per share, distribution coverage, and Debt/EBITDA as the primary anchors. Reported revenue may be shown for context only, with explicit note that gross revenue includes commodity pass-throughs |
+| HF-19 | A multiple is mislabeled — e.g., market cap ÷ DCF presented as "EV/DCF," or EV ÷ a per-share equity-level metric labeled as a P-style multiple | Regenerate with correct labels. P-prefix multiples use market cap and pair with equity-level cash-flow metrics; EV-prefix multiples use enterprise value and pair with enterprise-level cash-flow metrics (typically EBITDA). State numerator and denominator explicitly the first time each multiple appears |
+| HF-20 | Base-case exit multiple is materially higher than the current trading multiple or the mid-cycle historical range without explicit justification, silently embedding a re-rating into the "base" outcome | Regenerate with base-case exit multiple at or near current / mid-cycle, bear case below current, bull case as the multiple-expansion scenario. Any base-case multiple above current must be explicitly justified by a documented catalyst or structural change |
+
+If a hard-fail trigger is detected, **do not deliver the draft** — silently regenerate the final memo from scratch and deliver only the clean version. Do not narrate the regeneration to the user.
 
 ---
 
@@ -269,7 +374,7 @@ Always use the highest available tier. Label every data point with its source an
 SaaS/Software · Marketplace/Platform · Payments/Fintech/Lending · Bank/Insurance ·
 Retail/Consumer Discretionary · Consumer Staples · Industrial/Cyclical · Semiconductor/Hardware ·
 Energy/Commodities · Utility · REIT · Healthcare/Biotech/Pharma · Telecom/Media ·
-Asset Manager/Broker · Conglomerate/Mixed
+Asset Manager/Broker · BDC · Pipeline/MLP · Dividend Aristocrat/Mature Compounder · Conglomerate/Mixed
 
 ---
 
@@ -296,6 +401,9 @@ Asset Manager/Broker · Conglomerate/Mixed
 | Healthcare / Biotech / Pharma      | Drug pipeline, regulatory milestones, patent cliffs                   |
 | Telecom / Media                    | Subscribers, ARPU, churn, content costs                               |
 | Asset Manager / Exchange / Broker  | AUM, fee rate, performance fees                                       |
+| BDC (Business Development Company) | Investment portfolio, NAV per share, NII, distribution coverage       |
+| Pipeline / MLP                     | Distributable cash flow per unit, distribution yield, fee-based revenue |
+| Dividend Aristocrat / Mature Compounder | Long dividend track record, modest growth, high payout ratio    |
 | Conglomerate / Mixed               | Multiple distinct business units with different economics             |
 
 **Step 2 — State the classification explicitly in the output:**
@@ -316,6 +424,10 @@ Asset Manager/Broker · Conglomerate/Mixed
 | Inventory turns, same-store sales, traffic, markdowns, lease burden | Retail / Consumer Discretionary / inventory-heavy |
 | CET1, NIM, deposits, CRE exposure, NPLs | Bank / Lender |
 | FFO, AFFO, occupancy, tenant concentration, debt maturity ladder | REIT |
+| **Dividend/distribution-inclusive intrinsic value, dividend yield as component of expected return, payout ratio, distribution coverage** | **REIT / Utility / Pipeline-MLP / Dividend Aristocrat / BDC / any income-oriented archetype** |
+| **Allowed ROE, rate base, regulated-utility peer multiples** | **Utility** |
+| **NAV per share, P/NAV, NII, distribution coverage, non-accruals** | **BDC** |
+| **Distributable cash flow (DCF) per unit, distribution yield, fee-based revenue %** | **Pipeline / MLP** |
 | Combined ratio, loss ratio, reserves, catastrophe exposure | Insurer |
 | Reserve life, lifting costs, hedging, commodity sensitivity | Energy / Commodities |
 | Pipeline, patent cliffs, PDUFA dates, cash runway | Biotech / Pharma / Healthcare |
@@ -439,7 +551,7 @@ Not all risks matter equally. Before scoring, assign weights based on the compan
 **Weight constraints (hard rules):**
 - Weights must sum to **exactly 100%** — verify the arithmetic before delivering the scorecard.
 - For any high-growth or high-multiple stock, **Valuation / Expected Return must carry 30–40%** of the weighted scorecard.
-- Trading / Timing, Catalysts, and Position Sizing (Sections 16, 21, 22) **may not exceed 5% combined**. They inform timing and sizing — not the buy / watch / avoid decision itself.
+- Trading / Timing, Catalysts, and Position Sizing (Sections 16, 22, 23) **may not exceed 5% combined**. They inform timing and sizing — not the buy / watch / avoid decision itself.
 - If credit losses or loan-loss trajectory is identified as a major business-model-specific risk (e.g., for payments, lending, BNPL, MCA, insurance, or any company with material credit exposure), the **Credit / Loan-Loss Trajectory dimension must carry 10–15%** of the weighted scorecard. This is a sub-component of Business-Model Specific Risks but, when material, must be carved out and weighted explicitly.
 
 **Default weights by archetype:**
@@ -460,7 +572,7 @@ State weights explicitly before proceeding. Example:
 
 **Valuation override rule:** For any high-growth or high-multiple stock, Valuation / Expected Return must carry at least 30% of the weighted score. The scorecard interpretation must be consistent with the final verdict — a collection of green business-quality ratings must not override a 🔴 valuation rating when valuation carries 30–40% of the score.
 
-**Weight arithmetic check (mandatory before Section 19 scorecard):** After assigning all weights, sum them. If they do not equal exactly 100%, adjust before producing the scorecard. State the sum explicitly in the memo so the reader can verify.
+**Weight arithmetic check (mandatory before Section 20 scorecard):** After assigning all weights, sum them. If they do not equal exactly 100%, adjust before producing the scorecard. State the sum explicitly in the memo so the reader can verify.
 
 ---
 
@@ -492,11 +604,24 @@ Use 3–5 year trends. Label all periods explicitly.
 - EPS trend — but always cross-check with dilution (Section 12) `[Verified]`
 - Segment-level margins if disclosed — a healthy aggregate can hide a deteriorating segment `[Verified]`
 
+**Commodity pass-through and gross-vs-net revenue rule** (applies to pipelines, midstream, utilities, energy marketing, commodity trading, and any company where reported revenue includes pass-through costs):
+- For pipelines, midstream, utilities, and similar businesses, **reported gross revenue may include commodity pass-throughs** (the cost of gas, oil, power, or other commodities passed through to customers at little or no margin). These pass-throughs can be 50%+ of reported revenue but contribute almost nothing to economics.
+- Revenue figures may still be shown for context, but **valuation must rely primarily on**:
+  - Adjusted EBITDA (or adjusted EBITDAX for upstream)
+  - Distributable cash flow (DCF) — for pipelines/MLPs/utilities, this is the per-unit/per-share cash available for distributions
+  - DCF per share / DCF per unit
+  - Distribution coverage ratio (DCF ÷ distributions paid)
+  - Debt / EBITDA
+  - Fee-based revenue % (the portion of revenue under long-term contracts, not commodity-exposed)
+- **Do not use Price/Sales, EV/Revenue, or revenue-growth metrics as primary valuation anchors** for commodity-pass-through businesses. They mislead because they treat $1 of commodity cost passed through identically to $1 of margin earned.
+- Show **net revenue or margin-bearing revenue** alongside gross revenue if the disclosure permits, and use the net figure when discussing margins or growth quality.
+
 **Red flags:**
 - Revenue growing but gross/operating margins shrinking
 - Profits driven by tax benefits, one-off gains, or below-the-line items
 - EPS rising only because of buybacks, not earnings growth
 - One segment masking deterioration in another
+- For commodity-pass-through businesses: reported revenue growth driven entirely by commodity-price moves while fee-based revenue is flat or declining
 
 **Rating:** 🔴 Weak / 🟡 Mixed / 🟢 Strong
 
@@ -801,6 +926,7 @@ This section provides market sentiment, volatility, and technical context. It co
 
 **Rules:**
 - Label every market/technical data point with date and source. Mark stale items Needs Review.
+- **No-estimation rule (hard):** Do not estimate, approximate, or guess 52-week range, beta, RSI, moving averages, short interest, post-earnings move, or any other market/technical data point. Each value must come from a sourced market-data provider with the as-of date shown. If exact data is unavailable, **omit the row** rather than guess — or mark it Needs Review and exclude it from the interpretation paragraph below. Presenting a guessed market-data value as fact is a Hard-Fail QC trigger (HF-6).
 - Do not use technical signals as a substitute for valuation.
 - Do not say "thesis broken" because a stock falls below a moving average or support level.
 - A stock being down from its highs is not a margin of safety. Only the expected-return math (Section 17) can establish that.
@@ -892,7 +1018,308 @@ State all assumptions. Tag as `[Estimate]`. Explain whether base-case assumption
 
 ---
 
-## Section 18 — Quantitative Overlays
+## Section 18 — Intrinsic Value / Fair Value Estimate
+
+*Estimate what the business is worth **today** based on fundamentals — not analyst targets, not recent stock movement, not undiscounted future projections.*
+
+This section produces a **scenario-based, assumption-driven** estimate of fair value, not a fake-precise single number. It complements Section 17 (Valuation vs. Expected Return) — Section 17 asks "what return does the current price imply?", this section asks "what is the business worth today?"
+
+### Present-value discipline (hard rule — overrides everything else in this section)
+
+**All intrinsic values in this section must be expressed as present values discounted to today.** The current price is a present value; comparing it to an undiscounted year-N projection is a category error and produces false labels.
+
+- For a multi-year scenario (e.g., 5-year), the present intrinsic value of equity is:
+  `Present intrinsic value = Year-N equity value ÷ (1 + discount rate)^N`
+- The discount rate must be stated explicitly. Use the company's estimated cost of equity (or WACC if working from EV) — typically 8–12% for established businesses, higher for riskier profiles. Show the rate.
+- **Never** compare the current price to an undiscounted year-N value and call the comparison a fairness or undervaluation judgment. This is the most common analytical error in this section.
+- **Naming rule:** If the section is titled "Intrinsic Value / Fair Value Estimate," every reported value must be a present value. If for any reason you want to report undiscounted year-N projections, rename that block **"Scenario Target Value / Future Value Estimate"** and state explicitly that the figures are future target values, not present intrinsic values. The two cannot be mixed under one heading.
+- **Valuation label rule:** The final valuation label (Undervalued / Fairly Valued / Overvalued / etc.) must be based on the comparison of current price to **present** intrinsic value per share — never to undiscounted year-N value per share.
+
+### Worked example of the error (for illustration only)
+
+If a base-case scenario projects $138.6B of year-5 equity value at a 10% discount rate:
+- Present value of equity = $138.6B ÷ (1.10)^5 ≈ $86.1B
+- Present value per share (at e.g. 1.3B diluted shares) ≈ $66/share
+- If the current price is ~$105, the stock is **above** base-case present intrinsic value — not "fairly valued."
+
+The same scenario, if reported undiscounted as "$105.80/share base-case fair value," would falsely suggest the current price is on top of intrinsic value. That is the trap this rule eliminates.
+
+**The section must answer all of:**
+- What is the bear-case intrinsic value?
+- What is the base-case intrinsic value?
+- What is the bull-case intrinsic value?
+- What is the probability-weighted intrinsic value?
+- Is the current stock price below, near, or above that range?
+- What margin of safety exists, if any?
+- How confident is the estimate?
+
+### Required output — Scenario table
+
+Show the discounting step explicitly. Year-N value and present value must be in separate columns.
+
+| Case | Key Assumptions | Year-N Equity Value | Discount Rate | PV of Year-N Equity Value | Present Intrinsic Value / Share | Current Price | Upside / Downside vs Current | Probability | Notes |
+|------|----------------|--------------------:|--------------:|---------------------------:|--------------------------------:|--------------:|------------------------------:|------------:|-------|
+| Bear |                |                     |               |                            |                                 |               |                               |             |       |
+| Base |                |                     |               |                            |                                 |               |                               |             |       |
+| Bull |                |                     |               |                            |                                 |               |                               |             |       |
+
+Where:
+- **Year-N Equity Value** = projected equity value at end of horizon (e.g., year 5)
+- **PV of Year-N Equity Value** = Year-N value ÷ (1 + discount rate)^N
+- **Present Intrinsic Value / Share** = PV of equity ÷ diluted share count
+- **Upside / Downside vs Current** is computed against the **present** intrinsic value per share, not the year-N projection
+
+### Required output — Summary table
+
+All per-share values below are **present intrinsic values** (year-N value discounted to today). Do not put undiscounted future values in this table.
+
+| Summary | Value |
+|---|---:|
+| Current price | $X |
+| Discount rate used | X% |
+| Horizon (years) | N |
+| Bear-case **present** intrinsic value / share | $X |
+| Base-case **present** intrinsic value / share | $X |
+| Bull-case **present** intrinsic value / share | $X |
+| Probability-weighted **present** intrinsic value / share | $X |
+| Current discount / premium to probability-weighted present value | X% |
+| Current discount / premium to base-case present value | X% |
+| Margin of safety vs. base case | None / Thin / Moderate / Strong |
+| Margin of safety vs. bear case | None / Thin / Moderate / Strong |
+| Confidence level | Low / Medium / High |
+
+### Classification rules
+
+Based on current price vs. **probability-weighted intrinsic value**:
+
+| Discount / Premium | Classification |
+|--------------------|---------------|
+| Current price > 25% below probability-weighted value | **Potentially undervalued** |
+| Current price 10–25% below probability-weighted value | **Slightly undervalued** |
+| Current price within ±10% of probability-weighted value | **Fairly valued** |
+| Current price 10–25% above probability-weighted value | **Somewhat overvalued** |
+| Current price > 25% above probability-weighted value | **Overvalued** |
+
+**Extended classification labels (use in conjunction with the table above, based on current price vs. each scenario):**
+
+| Condition | Classification |
+|-----------|---------------|
+| Current price below the bear case AND data confidence is High | **Deeply undervalued** |
+| Current price more than 20% below the base case | **Undervalued** |
+| Current price within ±10% of the base case | **Fairly valued** |
+| Current price above the base case but below the bull case | **Bull-case dependent** |
+| Current price more than 20% above the base case | **Overvalued unless bull case is highly probable** |
+| Probability-weighted IV is materially higher than base-case IV because of an extreme bull case | **Bull-case sensitive** (use this label rather than "Undervalued") |
+
+When the probability-weighted and base-case labels disagree, use the more conservative of the two and explain why.
+
+**Label-softening rule:** When confidence is Low, soften the classification label. Use phrasing like "appears slightly undervalued under conservative assumptions, but confidence is Low" rather than asserting the label as fact.
+
+### Language requirements
+
+**Use phrasing such as:**
+- "Appears fairly valued under base-case assumptions."
+- "Appears overvalued unless the bull case plays out."
+- "Undervalued relative to conservative assumptions."
+- "Valuation is too assumption-sensitive for high confidence."
+
+**Never use phrasing such as:**
+- "The stock is worth exactly $X."
+- "Guaranteed upside."
+- "Safe because below intrinsic value."
+
+### Method selection by archetype
+
+Select the valuation methods that match the company's archetype from Section 2A. Do not force inappropriate methods.
+
+| Archetype | Required / Recommended Methods |
+|-----------|-------------------------------|
+| **Profitable software / platform / asset-light compounder** | DCF on FCF or owner earnings; EV/FCF or P/owner-earnings exit multiple; historical multiple check; peer multiple check; SBC-adjusted owner earnings |
+| **High-growth / high-multiple** | Reverse DCF; bear/base/bull scenario valuation; probability-weighted intrinsic value; required FCF or owner-earnings CAGR; sensitivity to exit multiple compression |
+| **Bank / lender / consumer finance** | Tangible book value; ROE vs. cost of equity; residual income model; credit-loss normalization; P/TBV and P/E through-cycle. **Do not use generic EV/EBITDA.** |
+| **Insurance** | Book value / tangible book value; ROE vs. cost of equity; combined ratio normalization; investment portfolio sensitivity; reserve adequacy |
+| **REIT** | AFFO / FFO multiple; NAV estimate; cap rate sensitivity; debt maturity / interest-rate sensitivity; dividend coverage. **Intrinsic value must be dividend-inclusive — see Income-stock IV rules below.** |
+| **Cyclical industrial** | Normalized mid-cycle revenue and margins; mid-cycle EPS / FCF; EV/EBITDA through-cycle. **Avoid valuing only peak earnings.** |
+| **Commodity / energy** | NAV / reserves; commodity price deck; production volume; FCF sensitivity to commodity prices; capex and depletion. **For pipeline MLPs and other income-distributing energy structures, intrinsic value must be distribution-inclusive — see Income-stock IV rules below.** |
+| **Biotech / pharma** | Pipeline probability weighting; patent cliff analysis; cash runway; product concentration; regulatory milestone risk |
+| **Dividend / mature compounder / dividend aristocrat** | Dividend discount model (often the primary method, not just secondary); FCF payout ratio; dividend growth durability; P/E and FCF yield vs. history. **Intrinsic value must be dividend-inclusive — see Income-stock IV rules below.** |
+| **Utility** | Regulated-asset-base × allowed ROE; dividend discount model; P/E vs. regulated-utility peer median; rate-case outlook; debt maturity / interest-rate sensitivity. **Intrinsic value must be dividend-inclusive — see Income-stock IV rules below.** |
+| **BDC (Business Development Company)** | NAV per share; P/NAV multiple; distribution coverage from net investment income; portfolio quality / non-accruals. **Intrinsic value must be distribution-inclusive — see Income-stock IV rules below.** |
+| **Conglomerate / holding company** | Sum-of-the-parts; look-through earnings; net cash/debt adjustment; holding-company discount where appropriate |
+
+### Income-stock intrinsic value (REITs, utilities, pipelines/MLPs, dividend aristocrats, BDCs, and other income-oriented archetypes)
+
+For income-oriented stocks, dividends or distributions are a **primary component of total return**, not a footnote. Intrinsic value calculated only from terminal value will systematically understate fair value for these archetypes.
+
+**Mandatory formula:**
+
+```
+Present Intrinsic Value / Share =
+    PV of expected dividends or distributions over the forecast period
+  + PV of terminal equity value at the end of the forecast period
+```
+
+Both components must be calculated and shown explicitly. Do **not** compute intrinsic value from terminal value alone and mention dividends only in prose.
+
+**Required output for income stocks:**
+
+| Component | Year 1 | Year 2 | ... | Year N | PV Sum |
+|-----------|-------:|-------:|-----|-------:|-------:|
+| Forecast dividend / distribution per share | $X | $X | | $X | |
+| Discount factor at rate r | 1/(1+r) | 1/(1+r)² | | 1/(1+r)^N | |
+| PV of each year's dividend / share | $X | $X | | $X | **$X (PV of dividends)** |
+| Terminal equity value / share at year N | — | — | | $X | |
+| PV of terminal equity value / share | — | — | | $X | **$X** |
+| **Present Intrinsic Value / Share** | | | | | **$X (total)** |
+
+**For REITs specifically:**
+- Use **AFFO / share** as the key per-share cash-flow metric (not FCF, not EPS, not FFO — AFFO is the closest analog to distributable cash flow).
+- Forecast both dividend per share and AFFO per share over the horizon.
+- Show **payout ratio** (dividend / AFFO) for each forecast year.
+- Show **dividend sustainability**: payout ratio trend, AFFO growth assumption, leverage trajectory.
+- Terminal equity value should typically be derived from an AFFO multiple, NAV, or cap-rate-based estimate.
+
+**For pipelines / MLPs, BDCs, utilities:** apply the same structure with the appropriate cash-flow metric (DCF for MLPs, NII for BDCs, regulated earnings for utilities).
+
+**Expected-return framework for income stocks:**
+
+For REITs, utilities, pipelines/MLPs, dividend aristocrats, BDCs, and other income-oriented archetypes, Section 17 (Valuation vs. Expected Return) **must primarily use** a dividend/distribution-inclusive total-return decomposition:
+
+```
+Expected total return ≈ current dividend / distribution yield
+                       + expected AFFO / DCF / NII per-share growth
+                       + multiple change (expansion or compression)
+```
+
+This is the **primary** expected-return framework for income stocks, not a secondary check. State each component explicitly. If yield is a meaningful part of total return (typically >2–3 percentage points of expected total return), it cannot be omitted or absorbed into a generic "growth" figure.
+
+**Prohibition on terminal-value-only reverse DCF as the main framework:**
+- A reverse DCF that compounds market cap forward and solves for required exit FCF growth — without explicitly including dividends or distributions paid during the holding period — is a **capital-appreciation-only** framework. It systematically understates expected return for income stocks because it ignores cash returned to shareholders along the way.
+- If a reverse DCF without dividends is presented for an income stock, label it explicitly as **"capital-appreciation-only — does not include dividend/distribution component."** Do not use this version as the main valuation conclusion. Use the yield-plus-growth-plus-multiple decomposition above as the main framework, and present the capital-appreciation-only reverse DCF only as a secondary cross-check.
+
+**Rules:**
+- If the income-stock archetype applies and the memo's intrinsic value section does not include a PV-of-dividends component alongside PV-of-terminal-value, the output fails QC (Hard-Fail trigger HF-12).
+- If the income-stock archetype applies and Section 17 uses a terminal-value-only reverse DCF as the main expected-return framework — without an explicit dividend/distribution component — the output fails QC (Hard-Fail trigger HF-16 below).
+- Distinguish between **dividend per share** (the actual cash distribution) and **AFFO / DCF / NII per share** (the underlying cash flow). Payout ratio is the link.
+- Do not assume a constant payout ratio without justification. Show the payout assumption explicitly.
+- For variable distributions (BDCs, MLPs), forecast a distribution range and note the variability.
+
+**Income-stock verdict language (overrides the generic classification labels for these archetypes):**
+
+For income-stock archetypes, use verdict language that reflects the holding nature of these stocks — they are typically bought for current yield plus modest growth, not for explosive upside. Apply the following bands based on current price vs. **base-case** present intrinsic value per share:
+
+| Condition | Recommended Verdict Language |
+|-----------|------------------------------|
+| Current price more than 15% below base-case present IV AND dividend/distribution is well covered (payout < ~85% of AFFO/DCF/NII) | **Attractive** |
+| Current price within ±10% of base-case present IV | **Fairly valued** |
+| Current price 10–20% above base-case present IV | **Slightly overvalued — Starter position only** |
+| Current price more than 20% above base-case present IV | **Overvalued — Wait for better entry** |
+| Current price above base case but with weakening dividend coverage (payout > 95% of AFFO/DCF/NII) | **Overvalued — dividend at risk** |
+| Excellent business trading at fair value with healthy coverage | **Hold / Starter / Wait for better entry** — never "Strong Buy" |
+
+**Income-stock scorecard alignment rule:** For income stocks, a "Strong Buy" verdict requires *both* (a) margin of safety vs. base-case present IV of at least 15% AND (b) well-covered dividend (payout below ~85% of AFFO/DCF/NII). An excellent income business at fair value is a Hold or Starter, not a Strong Buy. The numerical score must reflect this — do not let an 80+ score appear next to a "Fairly valued" income stock without an explicit override explanation.
+
+### Calculation rules
+
+- **Present value is mandatory for all per-share intrinsic-value figures.** Whatever method is used (DCF, exit multiple, NAV, residual income, sum-of-the-parts), the final per-share number reported must be a present value. If the method naturally produces a year-N projection (e.g., exit-multiple valuation), discount it back: `Present value = Year-N value ÷ (1 + discount rate)^N`. State the discount rate and the horizon explicitly.
+- **Use fair-value ranges, not fake-precise single numbers.** Always report bear / base / bull values as a range — never a single "intrinsic value = $X" number. The classification label is anchored to the base case, but the range must be visible.
+- **For DCF:** show revenue growth, margin, discount rate, terminal growth (or terminal multiple).
+- **For exit-multiple valuation:** show current FCF / owner earnings, growth assumptions, exit multiple, and implied value.
+- **Exit-multiple discipline (especially for mature income stocks):**
+  - The **base-case exit multiple should usually be near the current multiple or the mid-cycle historical multiple**, not a materially higher figure.
+  - Do not assume large multiple expansion in the base case unless explicitly justified (e.g., a documented re-rating catalyst, structural improvement in the business, or current multiple sitting well below long-term historical range).
+  - Suggested default exit-multiple distribution:
+    - **Bear:** below current multiple (multiple compression scenario)
+    - **Base:** near current multiple **or** mid-cycle historical multiple, whichever is more representative
+    - **Bull:** clear multiple-expansion case with justification
+  - **Example of a violation to avoid:** If current P/DCF is ~13x, a base-case exit multiple of 18x is too bullish unless explicitly labeled as the bull case. The base case at 18x would silently embed a 38% re-rating into the "base" outcome.
+  - For high-growth stocks, multiple compression is more likely than expansion over a 5–10 year horizon. The default base-case exit multiple should be flat to lower vs. current, not higher.
+  - For mature income stocks, multiples tend to be range-bound; the base case should sit inside the historical range, not at a new high.
+- **For EV-based valuation:** convert enterprise value to equity value:
+  `Equity value = EV − financial debt + cash & equivalents + non-operating assets − minority interest − preferred claims`
+- **For equity-value valuation:** divide by diluted shares outstanding (consistent with Section 9 figures).
+- Do not double count cash or non-operating investments.
+- Do not use analyst price targets as intrinsic value.
+- Do not use the bull-case value as fair value.
+- Do not call a stock undervalued unless current price is below probability-weighted (or base-case) value by a meaningful margin.
+- Do not call a stock cheap solely because it is below its 52-week high.
+- If inputs are too uncertain, mark intrinsic value confidence as Low.
+
+### Sensitivity requirement
+
+When valuation is highly assumption-sensitive (which is the default for high-growth, cyclical, or commodity companies), include at least one sensitivity table:
+
+| Variable | Conservative | Base | Aggressive |
+|----------|-------------|------|------------|
+| Revenue CAGR | X% | X% | X% |
+| FCF / owner-earnings margin | X% | X% | X% |
+| Exit multiple | Xx | Xx | Xx |
+| Discount rate (if DCF) | X% | X% | X% |
+| Terminal growth (if DCF) | X% | X% | X% |
+| **Implied value / share** | **$X** | **$X** | **$X** |
+
+### Reconciliation with Section 17 (Valuation vs. Expected Return)
+
+The intrinsic-value conclusion in this section must reconcile with Section 17. The two angles cannot tell contradictory stories without explanation.
+
+- If **Section 17 says the base-case IRR is weak** (i.e., the current price implies a return below the target hurdle rate), Section 18 **cannot call the stock clearly undervalued** unless the memo explains explicitly why the assumptions differ — for example, a different exit multiple, different reinvestment assumption, or different time horizon.
+- If the two sections appear to diverge, the memo must say so plainly and resolve the tension. A reader should not have to choose between Section 17 and Section 18.
+- The final valuation label must reflect all of:
+  - Base-case intrinsic value
+  - Probability-weighted intrinsic value
+  - Downside (bear) case
+  - Confidence level
+  - Margin of safety vs. base case AND vs. bear case
+
+### Bull-case sensitivity guardrail (right-skewed scenarios)
+
+Probability-weighted intrinsic value can be artificially inflated by a single large bull-case value. Do not let this masquerade as undervaluation.
+
+**Trigger:** If the bull-case intrinsic value is more than 2× the base-case intrinsic value, the probability-weighted IV is **bull-case sensitive** and the following rules apply:
+
+- State explicitly in the memo that probability-weighted IV is bull-case sensitive.
+- Emphasize **base-case value** and a **downside-adjusted value** rather than leaning on the probability-weighted figure.
+- Lower confidence to **Low** or **Low-Medium**.
+- Do **not** call margin of safety "Moderate" unless the current price is below **base-case value** by at least 20%. Margin of safety must be judged against base-case value, not probability-weighted value, when the scenario distribution is right-skewed.
+- Do **not** label the stock "Potentially undervalued" solely because probability-weighted IV is high. Use the **"Bull-case sensitive"** label from the Classification rules table.
+
+**For right-skewed growth stocks, always show all three reference points side by side:**
+- Median / base-case IV
+- Probability-weighted IV
+- Downside-adjusted IV (e.g., bear case, or a 25th-percentile estimate)
+
+The final classification label must be conservative — closer to the base-case and downside-adjusted values than to the bull-case-driven probability-weighted figure.
+
+### Output cleanliness — no scratchwork
+
+The Section 18 output must be a clean final memo. Never include:
+
+- "Wait, let me recalculate…"
+- "Correcting the bear case…"
+- "I made a mistake earlier…"
+- "Let me redo this…"
+- Any internal scratchpad or reasoning text from the calculation process.
+
+If a calculation is corrected during preparation, regenerate the final tables silently and present only the clean final version. The reader sees finished output, not work-in-progress.
+
+### Quality-control rule
+
+If the intrinsic value section relies on stale data, unverified data, or third-party estimates, mark **Confidence: Low** and **do not use the intrinsic value estimate to justify a Buy rating**. The estimate becomes informational only.
+
+### Integration with later sections
+
+- **Section 21 (Entry Price / Margin of Safety)** should use the intrinsic value range from this section as one input to the entry-zone analysis.
+- **Section 20 (Summary Weighted Scorecard):** intrinsic value informs the Valuation / Expected Return rating but **must not be double-counted as a separate weighted dimension**. Section 17 and Section 18 are two angles on the same risk; together they produce one Valuation rating.
+- **Section 25 (Final Verdict)** must include the following intrinsic-value fields explicitly:
+  - Current price
+  - Base-case intrinsic value / share
+  - Probability-weighted intrinsic value / share
+  - Valuation label (undervalued / fairly valued / overvalued) with confidence
+  - Margin of safety (None / Thin / Moderate / Strong)
+
+---
+
+## Section 19 — Quantitative Overlays
 
 Only include an overlay if the required inputs are available. Show the component inputs, not just the final score. If estimated, label clearly.
 
@@ -973,9 +1400,9 @@ Rule of 40 = Revenue Growth % + FCF Margin %
 
 ---
 
-## Section 19 — Summary Weighted Scorecard
+## Section 20 — Summary Weighted Scorecard
 
-**Weight propagation rule (hard):** The weights used in this scorecard must be the **exact same weights** stated in Section 5 (Dominant-Risk Weighting). The two sections cannot disagree. If Section 5 says Valuation / Expected Return is 35%, Section 19 must show Valuation / Expected Return at 35%. Any divergence is a QC failure and the memo must be regenerated.
+**Weight propagation rule (hard):** The weights used in this scorecard must be the **exact same weights** stated in Section 5 (Dominant-Risk Weighting). The two sections cannot disagree. If Section 5 says Valuation / Expected Return is 35%, Section 20 must show Valuation / Expected Return at 35%. Any divergence is a QC failure and the memo must be regenerated.
 
 **Required weights for high-multiple growth stocks:**
 - Valuation / Expected Return: **30–40%** (must match the 30–40% rule from Section 5)
@@ -1021,10 +1448,16 @@ Apply weights from Section 5. Score: 🟢 = 2, 🟡 = 1, 🔴 = 0. Multiply by w
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 ```
 
-**Verdict guidance (base mapping):**
-- **BUY / BUY ONLY IF PRICE IS ATTRACTIVE** — Score ≥ 70, no hard stops, valuation supports expected return
-- **WATCH / WAIT FOR BETTER ENTRY** — Score 45–69, or strong business with stretched valuation
-- **AVOID / TOO RISKY** — Any hard stop, OR score < 45, OR dominant-risk dimension is 🔴
+**Verdict guidance (base mapping — refined score bands aligned with verdicts):**
+
+| Score Band | Verdict Label | Interpretation |
+|------------|---------------|----------------|
+| 80–100 | **Strong Buy / Compelling** | High conviction; fundamentals, valuation, and risks all support purchase |
+| 65–79 | **Good Business — Price/Risk Dependent** | Quality is there but valuation or one risk dimension prevents a clean Buy |
+| 45–64 | **Watch / Wait for Better Entry** | Mixed signals or stretched valuation; revisit on price improvement or thesis evolution |
+| Below 45 | **Avoid / High Risk** | Multiple red flags, hard stops, or extreme valuation |
+
+**Visual-alignment rule:** The score must visually match the verdict. A "Watch / Wait" verdict must not be paired with a score of 75. A "Strong Buy" verdict must not be paired with a score of 60. If the raw arithmetic produces a band-verdict mismatch, either (a) re-examine the weights — a mismatch usually indicates a weighting error — or (b) explicitly state the override reason inline (e.g., "Score 75 but verdict WATCH because Valuation / Expected Return is 🔴 at 35% weight, per the override rules below"). Never ship a memo with an unexplained score-verdict visual mismatch.
 
 **Score-verdict alignment rule (hard override):**
 
@@ -1040,7 +1473,7 @@ The numerical score must align with the verdict. The mapping above is the *base 
 
 ---
 
-## Section 20 — Entry Price / Margin of Safety
+## Section 21 — Entry Price / Margin of Safety
 
 If the stock is high quality but expensive, show what different price levels imply for risk/reward.
 
@@ -1070,7 +1503,7 @@ If the stock is high quality but expensive, show what different price levels imp
 
 ---
 
-## Section 21 — Catalysts to Watch
+## Section 22 — Catalysts to Watch
 
 *Specific upcoming events that could change the thesis, valuation, or sentiment.*
 
@@ -1115,12 +1548,12 @@ Catalysts inform monitoring and timing. They do not establish whether the stock 
 - Catalysts must be **specific and actionable** — avoid vague items like "good news" or "more growth."
 - Tie each catalyst to the investment thesis. Explain what outcome would be bullish, neutral, or bearish.
 - If the next earnings date is not verified from the IR page or filing calendar, mark it Estimated or Needs Review.
-- Catalysts are monitoring tools. They do not replace the kill criteria in Section 23.
+- Catalysts are monitoring tools. They do not replace the kill criteria in Section 24.
 - **Treat accounting classification changes as comparability issues, not true economic catalysts.** A reclassification between operating, investing, and financing cash flows, or between revenue line items, changes how numbers are reported — not the underlying economics. Note them in this section only as comparability warnings, and flag them in Section 13 (Earnings Quality) where they belong. Do not present them as bullish or bearish drivers of value.
 
 ---
 
-## Section 22 — Position Sizing / Portfolio Risk Framing
+## Section 23 — Position Sizing / Portfolio Risk Framing
 
 *Should this stock be a core position, small position, speculative position, or avoided entirely?*
 
@@ -1165,7 +1598,7 @@ These ranges are illustrative risk buckets, not allocations. Do not give persona
 **Rules (risk-framing, not prescriptive):**
 - For high-quality but expensive stocks, the risk profile usually suggests **Small or Medium** sizing rather than Core, unless valuation is attractive on the expected-return math.
 - For high-risk or red-flag stocks, the risk profile usually suggests **Tiny / Watchlist / Avoid** even if upside looks large.
-- Do not recommend averaging down unless the thesis remains intact and the valuation has actually improved per Section 20 and Section 17.
+- Do not recommend averaging down unless the thesis remains intact and the valuation has actually improved per Section 21 and Section 17.
 - Severe red flags or any hard stop in Section 3 → default to Avoid regardless of upside.
 - Use risk-framing language ("the risk profile suggests…", "this sizing reflects…") rather than prescriptive absolutes ("never concentrate", "always small"). Position sizing is a function of the user's portfolio, risk tolerance, and time horizon — none of which the skill knows. Frame the implication; do not dictate the decision.
 
@@ -1173,7 +1606,7 @@ These ranges are illustrative risk buckets, not allocations. Do not give persona
 
 ---
 
-## Section 23 — Thesis Breakers / Kill Criteria
+## Section 24 — Thesis Breakers / Kill Criteria
 
 *What would make the investment thesis wrong after purchase?*
 
@@ -1216,7 +1649,7 @@ The kill criteria should be calibrated to the valuation thesis, not to obvious d
 
 ---
 
-## Section 24 — Final Verdict
+## Section 25 — Final Verdict
 
 The verdict must be driven **primarily by fundamentals, valuation, balance sheet, cash flow, and red flags**. Technical setup, analyst sentiment, and catalysts may inform timing — they do not establish intrinsic value.
 
@@ -1228,13 +1661,26 @@ Use this exact structure:
 
 **Valuation / Expected Return:** [Attractive / Fair / Stretched / Extreme] — [1–2 sentence rationale including implied return from Section 17]
 
+**Intrinsic Value Summary** (from Section 18 — all per-share figures are **present** intrinsic values discounted to today):
+- Current price: $X
+- Discount rate / horizon used: X% / N years
+- Base-case **present** intrinsic value / share: $X
+- Probability-weighted **present** intrinsic value / share: $X
+- Bull-case-sensitive flag: Yes / No (Yes if bull case > 2× base case, per Section 18 guardrail)
+- Confidence level: [Low / Medium / High]
+- Valuation label: [Deeply undervalued / Undervalued / Slightly undervalued / Fairly valued / Bull-case dependent / Bull-case sensitive / Somewhat overvalued / Overvalued unless bull case is highly probable / Overvalued]
+- Margin of safety vs. **base-case present value**: [None / Thin / Moderate / Strong]
+- Margin of safety vs. **bear-case present value**: [None / Thin / Moderate / Strong]
+
+The verdict must be driven by base-case **present** value and margin of safety, **not only** probability-weighted present value, and never by undiscounted year-N figures.
+
 **Main Red Flags:** [The most important red flags from Sections 3, 13, and other relevant sections — or "None material"]
 
 **Technical / Timing Context:** [1–2 sentences from Section 16 — *timing only, not valuation*]
 
-**Main Catalysts:** [2–3 specific upcoming events from Section 21 that could move the thesis or sentiment]
+**Main Catalysts:** [2–3 specific upcoming events from Section 22 that could move the thesis or sentiment]
 
-**Position-Sizing Implication:** [The bucket from Section 22: Avoid / Watchlist / Tiny / Small / Medium / Core]
+**Position-Sizing Implication:** [The bucket from Section 23: Avoid / Watchlist / Tiny / Small / Medium / Core]
 
 **Biggest Risk:** [Single most important risk in plain language]
 
@@ -1246,7 +1692,7 @@ Use this exact structure:
 
 **Confidence Level:** High / Medium / Low — [reason for uncertainty if Medium or Low]
 
-**Next Things to Monitor:** [3–5 specific metrics or events to watch next quarter, drawing from Section 21]
+**Next Things to Monitor:** [3–5 specific metrics or events to watch next quarter, drawing from Section 22]
 
 ---
 
@@ -1258,7 +1704,7 @@ Use this exact structure:
 
 ---
 
-## Section 25 — Sources
+## Section 26 — Sources
 
 List every source used, with filing period and access date where relevant.
 
@@ -1283,6 +1729,17 @@ List every source used, with filing period and access date where relevant.
 - **Language precision:** Say "revenue grew X% year-over-year" — not "beat expectations by X%" unless analyst consensus is sourced. Say "financial distress risk appears very low" — not "bankruptcy risk is zero."
 - **Filing-data extraction discipline:** If a 10-Q or 10-K has been reviewed, extract all disclosed items from it. Do not mark Needs Review for items present in the filing. This applies to: SBC, buyback details (shares, dollars, average price, remaining authorization), cash, marketable securities, short-term investments, diluted share count, all operating KPIs management discloses relevant to the company's archetype (see Section 2.5 — Company Archetype Classification), credit/transaction loss data, CAMs, auditor opinion, and ICFR status. Company filings are authoritative for all company-specific facts; third-party articles are not.
 - **EV discipline:** Always deduct all liquid assets from EV: cash, cash equivalents, marketable securities, short-term investments, and liquid long-term investments. Do not deduct only cash if material liquid assets are separately disclosed. Show the arithmetic. Do not assert an EV-based multiple unless the formula is transparent.
+- **EV convention consistency rule:** Pick **one** EV convention at the start of the memo and label it explicitly. Use the same convention everywhere EV appears (Company Snapshot, Data Integrity Check, Section 9 Balance Sheet, Section 17 Valuation, Section 18 Intrinsic Value, Section 20 Scorecard, Section 21 Entry Price). The acceptable conventions are:
+  - **Full-Strict EV** — `Market cap + Financial debt + Preferred equity + Non-controlling interest − Cash and equivalents`. Most rigorous. Best for capital-structure-complex companies (pipelines, utilities, infrastructure, conglomerates).
+  - **Strict EV (liquid-assets variant)** — Full-Strict EV but also deducts current marketable securities. Long-term investments stay in the EV figure.
+  - **Adjusted EV** — Strict + deducts liquid long-term marketable securities as well. Use only when long-term investments are genuinely liquid and non-strategic.
+  - **Simplified EV** — `Market cap + Net debt` (where Net debt = financial debt − cash). A common shorthand but it omits preferred equity and non-controlling interest. Acceptable only when both are immaterial; otherwise use Full-Strict.
+- **For pipeline / utility / infrastructure / income-stock archetypes:** the default is **Full-Strict EV**. These archetypes typically have material preferred equity, hybrid securities, and non-controlling interests that the Simplified convention would miss. Switching to Simplified for these archetypes requires an explicit reason.
+- **Do not switch EV convention mid-report** unless explicitly showing both side by side and labeling them.
+- Do not use third-party long-term debt figures (Macrotrends, data aggregators) if the primary filing debt tables are available.
+- Do not classify the same long-term investment as "liquid and non-strategic" in one section and "strategic / illiquid" in another. The classification must be consistent across the entire memo.
+- Do not deduct strategic equity stakes, joint-venture investments, or other operating non-cash assets from EV unless conducting a separate sum-of-the-parts analysis (which must be labeled as such). The default EV deduction is liquid investment assets only.
+- State the chosen convention in the Company Snapshot and in the Data Integrity Check Notes column for the Enterprise Value row.
 - **Gap discipline:** If data is genuinely unavailable after reviewing all available filings, say so and mark Needs Review. Never fill gaps with silent assumptions.
 - **Source discipline:** Use primary filings first. If a 10-Q or 10-K covers the period, do not say data was unavailable. Label market-share figures as Third-Party Market Data. Company filings override third-party articles for company-specific facts.
 - **SBC discipline:** Never treat SBC as harmless. Always compute owner earnings. Use actual filed SBC, not guided SBC. Describe both absolute and percentage trends accurately.

@@ -226,8 +226,9 @@ Load the relevant archetype(s) only. Skip metrics that don't apply.
 ## REIT
 
 **Key metrics to check:**
-- FFO (Funds from Operations) and AFFO (Adjusted FFO)
+- FFO (Funds from Operations) and AFFO (Adjusted FFO) per share
 - AFFO payout ratio (dividend sustainable?)
+- Dividend per share, dividend growth rate, dividend yield
 - Same-property NOI growth
 - Occupancy rate and trend
 - Weighted average lease term (WALT)
@@ -237,12 +238,73 @@ Load the relevant archetype(s) only. Skip metrics that don't apply.
 - Interest-rate sensitivity (fixed vs. floating rate debt)
 - Development pipeline and cost overrun risk
 
+**Intrinsic value requirement:** REIT intrinsic value must be dividend-inclusive (PV of dividends + PV of terminal value). See Section 18 — Income-stock IV rules. Use AFFO/share as the key per-share cash-flow metric.
+
 **Red flags:**
 - Occupancy declining in core portfolio
 - AFFO payout ratio > 95% (little cushion)
+- Dividend cut signaled by declining AFFO coverage
 - Short WALT with rising vacancy in a weak market
 - Refinancing cliff with rising rates
 - Tenant concentration in distressed sectors
+
+---
+
+## Utility
+
+**Key metrics to check:**
+- Regulated asset base / rate base growth
+- Allowed ROE (regulator-approved return on equity)
+- Realized ROE vs. allowed ROE
+- Earned ROE trend
+- Dividend per share, dividend growth, dividend yield
+- Payout ratio
+- Regulatory environment (constructive vs. challenging jurisdiction)
+- Rate case outcomes and pending cases
+- Capex plan and rate-base growth trajectory
+- Debt / total capital ratio
+- Interest coverage
+- Credit rating
+- Customer growth in service territory
+- Fuel mix and decarbonization trajectory
+
+**Intrinsic value requirement:** Utility intrinsic value must be dividend-inclusive (PV of dividends + PV of terminal value). See Section 18 — Income-stock IV rules.
+
+**Red flags:**
+- Realized ROE persistently below allowed ROE (operational issues)
+- Hostile regulatory environment
+- Heavy capex without rate-base recovery clarity
+- Payout ratio > 80–85% with limited growth
+- Stranded-asset risk from regulatory or technology change
+
+---
+
+## BDC (Business Development Company)
+
+**Key metrics to check:**
+- NAV per share
+- P/NAV multiple (premium / discount)
+- Net investment income (NII) per share
+- Distribution per share, distribution yield
+- Distribution coverage from NII (target ≥ 100%)
+- Portfolio yield (weighted-average yield on investments)
+- Cost of debt
+- Net interest spread (portfolio yield − cost of debt)
+- Non-accrual rate (% of portfolio not paying interest)
+- Portfolio diversification by issuer and sector
+- Senior secured % of portfolio
+- Leverage (debt-to-equity)
+- Regulatory leverage cap compliance
+
+**Intrinsic value requirement:** BDC intrinsic value must be distribution-inclusive (PV of distributions + PV of terminal value, typically derived from NAV). See Section 18 — Income-stock IV rules. NAV per share is the most important anchor; P/NAV trend matters more than P/E.
+
+**Red flags:**
+- Distribution coverage from NII below 100% for multiple quarters (distribution being funded by capital, not income)
+- Non-accruals rising materially
+- NAV declining quarter over quarter
+- Heavy reliance on unrealized gains rather than recurring income
+- Leverage approaching regulatory cap
+- Persistent P/NAV discount may indicate market doubts about NAV accuracy
 
 ---
 
