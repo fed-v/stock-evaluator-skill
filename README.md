@@ -107,6 +107,12 @@ Each rule targets a specific observed failure:
 - **Buyback theater** — Board authorizations make headlines; actual repurchases are what move the share count. The skill requires five specific data points: shares repurchased, dollars spent, average price, remaining authorization, and whether the buyback was value-accretive at that price.
 - **Take rate assertion** — Marketplace analysis often states that take rate is "rising" or "stable" without showing the math. The skill requires an explicit calculation (revenue ÷ GMV/TPV/GTV) for the current and prior periods before any directional claim is made.
 
+### Metric consistency across the memo
+
+A 25-section memo is long enough that the same metric can appear under different names in different sections, with values that don't match. This happens silently — the model doesn't notice, the reader may not notice on a first pass, and the contradiction quietly undermines the analysis.
+
+The skill enforces a single-value rule: if a metric is stated in Section 7, the same figure must appear in Section 17, Section 19, and wherever else it is referenced. Transportation revenue, fee-based revenue, and total services revenue are not interchangeable unless the filing uses them as the same line item. A DCF/share figure used in the valuation section must reconcile to the dividend/payout ratio used in the coverage section. If two numbers for the same concept appear in the same memo, one of them is wrong — and the skill is required to flag the conflict rather than silently pick one.
+
 ### Analysis gate before narrative
 
 The Hard Stop Scan (Section 3) runs before any other analysis. If it surfaces a qualified auditor opinion, SEC investigation, material weakness in internal controls, or credible fraud allegation, the default verdict is AVOID — and no downstream financial strength can override it. This prevents the model from building a compelling analysis on top of a disqualified company.
@@ -122,6 +128,16 @@ The rule also enforces internal consistency: if the final verdict says "wait for
 Valuation analysis stops too early when it only reports P/E and EV/EBITDA. Section 17 adds a reverse-DCF table with bear, base, and bull scenarios answering one question: *what has to be true about this business for the stock to beat the market from current prices?* This forces the analysis to take a position rather than describe a range.
 
 The required sequence for the reverse-DCF is fixed and cannot be reversed: start with today's market cap or EV, apply the target return over the holding period to get the required exit value, divide by the exit multiple to get required future FCF or owner earnings, then compare that to current FCF or owner earnings to calculate the required CAGR. Always compound today's market cap forward first, then derive the required exit FCF. Deriving it in the opposite order produces systematically misleading results.
+
+### Income stocks require a different valuation grammar
+
+The reverse-DCF framework is built for capital-appreciation stocks, where the return comes from price. Applied to a pipeline, utility, REIT, or dividend-compounding stock, it systematically understates value by ignoring the dividend stream — which is often the majority of total return.
+
+For income stocks, the skill switches valuation frameworks. The controlling metrics are DCF per share or AFFO per share, dividend coverage ratio, payout sustainability, and Debt/EBITDA. Intrinsic value is estimated as the present value of dividends plus the present value of terminal equity — where terminal equity is derived from the archetype-appropriate multiple (P/DCF, P/AFFO), not from an FCF exit. The reverse-DCF may still appear as a secondary cross-check, but it is explicitly labeled as a capital-appreciation-only calculation that excludes dividends.
+
+The Final Verdict language also changes. "Strong Buy" and "Avoid" are the right labels for a growth stock trading far below or above intrinsic value. For a mature income stock trading at fair value with solid coverage, the right verdict is "Hold / Starter" or "Fairly valued — wait for better entry." Calling it a Strong Buy because the business quality is excellent, when there is no margin of safety, is a scoring error — not an insight.
+
+This distinction matters because income investors are solving a different problem. They are not asking whether the stock will double. They are asking whether the dividend is safe, whether it will grow, and whether the current price gives them an adequate yield on cost. The memo must answer those questions in those terms.
 
 ### Kill criteria tied to the entry thesis
 
@@ -139,7 +155,7 @@ Total FCF can grow while per-share FCF quietly falls through dilution. Many inve
 
 ### Confidence tagging on every claim
 
-Every material data point carries a tag: `[Verified]`, `[Market Data]`, `[Estimate]`, `[Qualitative judgment]`, or `[Unverified]`. A hard rule prohibits any `[Unverified]` claim from driving the scorecard verdict. This makes the epistemic status of the analysis visible rather than buried in prose confidence.
+Every material data point carries a tag indicating its epistemic status: `[Verified]` for values pulled directly from primary filings or clearly identified company releases; `[Derived]` for calculations built from verified values; `[Market Data]` for stock price, market cap, beta, 52-week ranges, analyst estimates, and third-party price data; `[Estimate]` where the exact value was approximated; `[Qualitative judgment]` for subjective assessments; and `[Unverified]` where sourcing is absent or unclear. A hard rule prohibits any `[Unverified]` claim from driving the scorecard verdict. The distinction between `[Verified]` and `[Derived]` matters: a calculated ratio is not the same as a filed number, and calling it Verified when it is actually a derivation overstates confidence.
 
 ### Memo format over checklist format
 
@@ -155,12 +171,16 @@ Section 2A runs before any KPI analysis begins. The skill classifies the busines
 
 Hybrid companies trigger multiple KPI libraries simultaneously. A fintech that combines a subscription product, a payment network, and a merchant lending book is evaluated against all three. Some examples of how archetype determines the metrics that matter:
 
-- **SaaS** — Net revenue retention, ARR/MRR growth, Rule of 40, gross margin profile, SBC as % of revenue
+- **SaaS / software** — Net revenue retention, ARR/MRR growth, Rule of 40, gross margin profile, SBC as % of revenue and FCF
 - **Marketplace / platform** — GMV/GTV/TPV growth, take rate (calculated, not asserted), supply-demand balance, cohort health, liquidity density
 - **Payments / lending / BNPL** — Transaction loss rate, charge-offs, allowance coverage ratio, delinquency aging, credit-loss growth vs. revenue growth
 - **Banks / lenders** — Net interest margin, provision expense, charge-offs, CET1 ratio, deposit and funding mix
-- **REITs** — AFFO per share, debt maturity profile, cap rate trends, occupancy, same-store NOI
+- **REITs** — AFFO/FFO per share, debt maturity profile, cap rate trends, occupancy, same-store NOI, dividend coverage
+- **Pipeline / utility / income stock** — DCF per share, dividend yield, payout ratio, Debt/EBITDA, regulatory risk, rate cases, dividend-inclusive intrinsic value
+- **Industrial / railroad** — Operating ratio, volume and yield trends, capex intensity, ROIC, network productivity, regulatory risk
 - **Cyclicals** — Normalized margins across the cycle, current cycle position, inventory levels, commodity price sensitivity
+
+The classification also determines what gets skipped. A pipeline company should not be evaluated against SaaS churn benchmarks. A railroad does not need a take-rate calculation. Each memo explicitly lists the KPI libraries that were loaded and those that were skipped as not applicable — so the reader knows exactly what lens was applied and why.
 
 Misclassifying the archetype propagates errors through every downstream section. Getting this right first is not a formality — it is a prerequisite.
 
@@ -187,9 +207,17 @@ If primary filing SBC cannot be extracted, owner earnings are marked **Needs Rev
 
 Owner earnings = FCF − SBC, period. A business that generates $1B of FCF but pays $400M in SBC has $600M of owner earnings. Calling that "$1B FCF company" is not wrong — it is just incomplete in a way that systematically flatters the valuation.
 
+One important exception: for pipelines, utilities, railroads, REITs, and other mature capital-intensive businesses, SBC is often not the controlling issue. In those cases the memo states that explicitly — "SBC is not the primary owner-earnings concern for this archetype" — and shifts focus to the archetype-appropriate metric (DCF/share, AFFO/share, operating ratio). The SaaS-style SBC lens is not applied where it does not belong.
+
 ### Cash-flow comparability flags
 
 Companies occasionally change how they classify cash flows between operating, investing, and financing activities. A reclassification that moves a recurring cost out of operating cash flow and into investing cash flow will make OCF and FCF look structurally better without any economic improvement. The skill is required to flag any announced or enacted presentation changes, explain whether the change reflects economic improvement or is purely a comparability issue, and normalize all period-over-period FCF comparisons across the change date.
+
+### Clean output, no process narration
+
+A memo that says "let me gather the data now" or "wait — recalculating" is not a memo. It is a transcript of an LLM working out loud. The skill prohibits any workflow narration from appearing in the final output. Phrases like "I found," "in the previous session," "now I have the data," and "let me check" are not permitted in the delivered memo.
+
+If data is missing or uncertain, it is stated as "Needs Review" in the relevant section — not as a narrative explanation of why it could not be retrieved. The memo begins with the disclaimer and ends cleanly after Sources. Limitations are facts about the analysis, not commentary about the process.
 
 ### Source hierarchy with explicit tier labels
 
@@ -199,7 +227,7 @@ Every data point must be labeled with its source and tier. The hierarchy is enfo
 
 ## Evolution
 
-This skill started as a 9-item checklist adapted from a YouTube video and was rebuilt through six distinct rounds of iteration. The driving question at each round was the same: *what can still produce a falsely confident output, and how do we close that gap?*
+This skill started as a 9-item checklist adapted from a YouTube video and was rebuilt through seven distinct rounds of iteration. The driving question at each round was the same: *what can still produce a falsely confident output, and how do we close that gap?*
 
 **Round 1 — From checklist to framework.** Added forensic accounting as a standalone check, ROIC analysis to separate valuable growth from value-destroying growth, per-share economics to catch dilution, and three quantitative overlays (Piotroski, Beneish, Altman). Added Hard Stop conditions that bypass the scorecard entirely.
 
@@ -213,7 +241,9 @@ This skill started as a 9-item checklist adapted from a YouTube video and was re
 
 **Round 6 — Decision-usefulness and portfolio framing.** Added three new sections — Trading / Timing Context, Catalysts to Watch, and Position Sizing / Portfolio Risk Framing — to make the memo more useful at the point of actual execution, while capping their combined scorecard weight at 5% so they cannot override the fundamental verdict. Added Section 2A (Company Archetype Classification) as an explicit prerequisite step before KPI selection. Tightened SBC sourcing to require primary filings when available, with a hard block on owner-earnings calculations if the filing value cannot be extracted. Added structured credit and lending risk disclosure rules with severity tiers (watch, red flag, thesis breaker). Added cash-flow comparability flags for classification changes. Enforced scorecard consistency: if the verdict says "wait for a better price," the numerical score must not look like a buy. Fixed the reverse-DCF sequence to always compound today's market cap forward first. The goal throughout Round 6 was the same as every prior round — improve practical decision support without turning the skill into a trading signal generator.
 
-The skill grew from 9 checks to a 25-section framework with a 312-line sector KPI library. Each round made it harder for bad inputs to produce confident outputs, and harder for a strong operational story to paper over a broken valuation.
+**Round 7 — Archetype precision and income-stock grammar.** The framework had been built primarily around growth and quality-compounding stocks. Applying it to pipelines, utilities, REITs, and railroads produced technically correct but analytically wrong output — the reverse-DCF ignored dividends, SBC thresholds were applied where they were irrelevant, and verdict language calibrated for growth stocks was used on income stocks with no margin of safety. Round 7 added dedicated valuation rules for income-stock archetypes (DCF/share, AFFO/share, DDM, dividend coverage, Debt/EBITDA), introduced income-appropriate verdict language (Hold / Starter / Wait for better entry / Fairly valued), prohibited SaaS-style SBC analysis on capital-intensive businesses where it does not apply, added a metric-consistency rule to prevent the same figure appearing with two different values across sections, expanded the confidence-tag vocabulary to distinguish `[Derived]` from `[Verified]`, and enforced clean output — no workflow narration in the delivered memo.
+
+The skill grew from 9 checks to a 25-section framework covering growth stocks, income stocks, cyclicals, and capital-intensive businesses. Each round made it harder for bad inputs to produce confident outputs, and harder for a strong operational story to paper over a broken valuation.
 
 ---
 
